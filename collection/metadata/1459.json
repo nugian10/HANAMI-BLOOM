@@ -1,0 +1,39 @@
+{
+  "name": "HANAMI BLOOM #1459",
+  "description": "HANAMI BLOOM #1459 \u2014 a great sakura tree in full bloom under an indigo night sky, Mount Fuji on the horizon. One of 3,333 cherry-blossom artworks on BNB Smart Chain.",
+  "image": "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/images/1459.svg",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Rare"
+    },
+    {
+      "trait_type": "Tier",
+      "value": "Sakura"
+    },
+    {
+      "trait_type": "Sky",
+      "value": "Twilight Indigo"
+    },
+    {
+      "trait_type": "Blossom Shade",
+      "value": "Sakura White"
+    },
+    {
+      "trait_type": "Tree Form",
+      "value": "Upright"
+    },
+    {
+      "trait_type": "Petal Fall",
+      "value": "Light"
+    },
+    {
+      "trait_type": "Mount Fuji",
+      "value": "Right Peak"
+    },
+    {
+      "trait_type": "Frame",
+      "value": "Washi Edge"
+    }
+  ]
+}

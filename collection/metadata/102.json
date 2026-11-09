@@ -1,0 +1,39 @@
+{
+  "name": "HANAMI BLOOM #102",
+  "description": "HANAMI BLOOM #102 \u2014 a Wildflower meadow beneath falling sakura petals, painted in the ukiyo-e manner. One of 3,333 cherry-blossom artworks on BNB Smart Chain.",
+  "image": "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/images/102.svg",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    },
+    {
+      "trait_type": "Tier",
+      "value": "Wildflower"
+    },
+    {
+      "trait_type": "Sky",
+      "value": "Soft Rose"
+    },
+    {
+      "trait_type": "Wildflower Hue",
+      "value": "Blush Pink"
+    },
+    {
+      "trait_type": "Petal Fall",
+      "value": "Light"
+    },
+    {
+      "trait_type": "Meadow",
+      "value": "Moss Slope"
+    },
+    {
+      "trait_type": "Motif",
+      "value": "Fireflies"
+    },
+    {
+      "trait_type": "Frame",
+      "value": "Double Ink"
+    }
+  ]
+}

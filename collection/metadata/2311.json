@@ -1,0 +1,39 @@
+{
+  "name": "HANAMI BLOOM #2311",
+  "description": "HANAMI BLOOM #2311 \u2014 the Eternal Bloom: a golden sakura tree shining against a celestial sky. One of 3,333 cherry-blossom artworks on BNB Smart Chain.",
+  "image": "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/images/2311.svg",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Legendary"
+    },
+    {
+      "trait_type": "Tier",
+      "value": "Eternal Bloom"
+    },
+    {
+      "trait_type": "Sky",
+      "value": "Midnight Gold"
+    },
+    {
+      "trait_type": "Aura",
+      "value": "Pale Gold"
+    },
+    {
+      "trait_type": "Canopy",
+      "value": "Full Bloom"
+    },
+    {
+      "trait_type": "Crescents",
+      "value": "Twin Crescents"
+    },
+    {
+      "trait_type": "Rays",
+      "value": "Soft Rays"
+    },
+    {
+      "trait_type": "Frame",
+      "value": "Gold Double"
+    }
+  ]
+}
