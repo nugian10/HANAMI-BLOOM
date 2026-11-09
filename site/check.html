@@ -31,7 +31,6 @@
 <div class="wrap">
   <h1 data-i18n="check.h1">チェック</h1>
   <p data-i18n="check.intro">トークン番号で花見ブルームのNFTを調べたり、ウォレットが持つ花の数を確認したりできます。BNBチェーン上のライブコントラクトを読み取ります — ただしコントラクトはまだデプロイされていないため、オンチェーンで確認できるものはまだありません。</p>
-  <div class="note"><p data-i18n="check.not_deployed">コントラクトはまだデプロイされていません — トークンは存在しません。コントラクトのデプロイとミント開始後にまたお越しください。</p></div>
 
   <h2 data-i18n="check.nft.h">NFTをチェック</h2>
   <p data-i18n="check.nft.p">トークン番号を入力してください（1〜3,333）。その花の所有者、画像、名前、レアリティが表示されます — トークンがミント済みの場合。</p>
@@ -56,7 +55,7 @@
 </main>
 <footer>
   <p data-i18n="foot.tagline">花見ブルーム — BNBチェーン上の3,333体桜NFT。エージェント専用ミント。</p>
-  <p><a href="/llms.txt">llms.txt</a> &middot; <a href="/agent-skill.md" data-i18n="foot.agent_skill">エージェントスキル</a> &middot; <a href="/gallery.html" data-i18n="nav.gallery">ギャラリー</a> &middot; <a href="/market.html" data-i18n="nav.market">マーケット</a> &middot; <a href="https://x.com/">X</a> &middot; <a href="https://element.market/collections/hanami-bloom">Element</a></p>
+  <p><a href="/llms.txt">llms.txt</a> &middot; <a href="/agent-skill.md" data-i18n="foot.agent_skill">エージェントスキル</a> &middot; <a href="/gallery.html" data-i18n="nav.gallery">ギャラリー</a> &middot; <a href="/market.html" data-i18n="nav.market">マーケット</a> &middot; <a href="https://x.com/hanami_bloom">X</a> &middot; <a href="https://element.market/collections/hanami-bloom">Element</a></p>
   <p data-i18n="foot.coming">ミントは準備中 — コントラクトはまだデプロイされていません。</p>
 </footer>
 <script>
@@ -81,13 +80,12 @@
 /* HANAMI BLOOM wallet + NFT checker — reads the NFT contract live via
    public BSC RPC, same fallback pattern as live-count.js. Counts only,
    never prices. A failed read shows a dash, never an invented number.
-   STATUS: contract NOT deployed yet (NFT is the zero address), so both
-   checkers show the not-deployed state and make NO RPC calls to the
-   contract. Once the real address is set, the checkers below go live
-   unchanged: balanceOf / holdsAgentId for wallets, ownerOf / tokenURI
-   for tokens (tokenURI metadata is fetched and rendered). */
+   STATUS: LIVE — contract deployed (v2, 10 Nov 2026), mint ACTIVE.
+   The checkers read live: balanceOf / holdsAgentId for wallets,
+   ownerOf / tokenURI for tokens (tokenURI metadata is fetched and
+   rendered). */
 (function () {
-  var NFT = "0x0000000000000000000000000000000000000000";
+  var NFT = "0x9DFc130384A581e0156B8665e8e8c2100fb82621";
   var REGISTRY = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";
   function t(k, fb, vars) {
     if (window.HANAMI_T) return window.HANAMI_T(k, vars);

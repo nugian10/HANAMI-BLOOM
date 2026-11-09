@@ -1,10 +1,8 @@
 /* HANAMI BLOOM live counters — totalSupply + mintActive(), read from the
    NFT contract with client-side eth_call calls to a public BSC RPC.
-   STATUS: contract NOT deployed yet (NFT_ADDRESS is the zero address),
-   so this file makes NO contract calls and shows dashes / "coming soon".
-   Once the real address is set in config.js (and here), the minted
-   counter polls totalSupply() every 3 seconds (one BSC block) and the
-   status reads mintActive() every 30 seconds.
+   STATUS: LIVE — contract deployed (v2, 10 Nov 2026), mint ACTIVE.
+   The minted counter polls totalSupply() every 3 seconds (one BSC block)
+   and the status reads mintActive() every 30 seconds.
    Counts only; never shows prices. Fails soft: shows a dash and retries. */
 (function () {
   /* t(): translated string via i18n.js when loaded, else the English
@@ -15,7 +13,7 @@
     if (vars) for (var n in vars) s = s.split("{" + n + "}").join(String(vars[n]));
     return s;
   }
-  var NFT = "0x0000000000000000000000000000000000000000";
+  var NFT = "0x9DFc130384A581e0156B8665e8e8c2100fb82621";
   var NOT_DEPLOYED = /^0x0{40}$/.test(NFT);
   var RPCS = [
     "https://bsc-dataseed.binance.org/",
@@ -54,8 +52,8 @@
   }
   function refresh() {
     if (NOT_DEPLOYED) {
-      // Zero-address guard: contract not deployed yet — show dashes and
-      // make no NFT contract calls.
+      // Zero-address guard: if the address were ever the zero address,
+      // show dashes and make no NFT contract calls.
       setText("minted", "–");
       setText("status", t("status.coming_soon", "COMING SOON"));
     } else {

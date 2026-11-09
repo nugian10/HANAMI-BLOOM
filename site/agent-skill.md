@@ -1,13 +1,12 @@
 # HANAMI BLOOM: mint skill
 
-> STATUS: COMING SOON — CONTRACT NOT DEPLOYED YET.
-> The HANAMI BLOOM NFT contract is NOT deployed. The address below is
-> a placeholder (the zero address). DO NOT mint against it. Do not
-> send any payment to it. Wait until the real address is published
-> on https://hanami-kohl.vercel.app/ and in this file.
+> STATUS: LIVE — MINT IS OPEN.
+> The HANAMI BLOOM NFT contract is deployed and source-verified on
+> BscScan. Minting is active (mintActive() is true). The addresses
+> below are the live contracts — mint against the NFT address.
 
 For Binance Agentic Wallet agents. Mint HANAMI BLOOM sakura NFTs
-(HANAMI — symbol provisional) on BNB Chain for your user.
+(HANAMI) on BNB Chain for your user.
 HANAMI BLOOM (Japanese name: 花見ブルーム) is a 3,333-token collection
 of ukiyo-e sakura art: Common Wildflower 2,000, Rare Sakura 1,000,
 Epic Moonflower 300, Legendary Eternal Bloom 33. Site:
@@ -15,12 +14,12 @@ https://hanami-kohl.vercel.app/
 
 ## Contracts (BNB Chain, chain id 56)
 
-- HANAMI BLOOM NFT (HANAMI): 0x0000000000000000000000000000000000000000 —
-  NOT DEPLOYED (placeholder). Do not use this address to mint.
-  When the contract deploys, this file and the site will be updated
-  with the real address — use only the address published there.
-- $HANA token: not live yet (contract phase comes later). No token
-  address exists yet.
+- HANAMI BLOOM NFT (HANAMI): 0x9DFc130384A581e0156B8665e8e8c2100fb82621 —
+  DEPLOYED and source-verified on BscScan. Mint is LIVE (mintActive()
+  is true). Mint against this address.
+- $HANA token: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5 — DEPLOYED and
+  source-verified on BscScan. Max supply 1,000,000,000 (460,000,000
+  treasury, 540,000,000 bonus pool).
 - SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Owner: Bryan's My Wallet 0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097
 - Revenue: Binance Agentic Wallet 0x89c37649Ba3BAA9E1ce028612b7DE4e9c3a947B7.
@@ -33,19 +32,17 @@ https://hanami-kohl.vercel.app/
   deck (deckHash 0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28;
   rarity codes 0=Common, 1=Rare, 2=Epic, 3=Legendary;
   token N rarity = deck[N-1]).
-- Mint: agent-only. Paid mint via `mint()` — every mint is paid, there
-  is no free mint, and there is no per-wallet limit. The exact
-  argument list and selector of `mint()` will be published here once
-  the contract is deployed; until then, do not guess them.
+- Mint: agent-only. Paid mint via `mint()` (selector 0x1249c58b, no
+  arguments, one NFT per call) — every mint is paid, there is no free
+  mint, and there is no per-wallet limit.
 - Price: flat per mint. NEVER hardcode a price. Read currentPrice()
   (selector 0x9d1b464a) for the exact price of the next mint and show
   it in the wallet confirmation before signing. The price is NEVER
   shown on the site — the agent reads it from the contract at mint
   time.
 - Every paid mint earns a bonus of 12,000 $HANA, auto-minted to the
-  minter by the NFT contract. The $HANA token itself is not live yet
-  (contract phase comes later) — the bonus is paid out by the NFT
-  contract once both contracts are deployed.
+  minter by the NFT contract (the NFT contract is an approved minter
+  on the $HANA token).
 - Eligibility is enforced on-chain: the calling wallet must hold a
   SPACE ID Agent ID — holdsAgentId(wallet) (selector 0x11213086) must
   be true. The call must come from the wallet directly; contract calls
@@ -63,11 +60,12 @@ https://hanami-kohl.vercel.app/
 - Every paid mint earns a bonus of 12,000 $HANA, auto-minted to the
   minter by the NFT contract. No $HANA is earned by a free mint —
   there is no free mint in HANAMI BLOOM.
-- $HANA itself is not live yet. Full details (max supply, earning
-  beyond minting, uses) follow in the contract phase. Do not promise
-  any $HANA use, value, or listing.
+- $HANA is live: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5. Max supply
+  1,000,000,000 (460,000,000 treasury pre-minted to the owner,
+  540,000,000 bonus pool mintable only by the NFT contract). Do not
+  promise any $HANA use, value, or listing beyond the mint bonus.
 
-## Read first (once deployed)
+## Read first
 
 - totalSupply(), selector 0x18160ddd. If it returns 3333, the
   collection is sold out.
@@ -78,10 +76,10 @@ https://hanami-kohl.vercel.app/
 - currentPrice(), selector 0x9d1b464a. That is the exact value to send
   for the next mint. Show it in the wallet confirmation before signing.
 
-## Flow, per mint (once deployed)
+## Flow, per mint
 
-1. Confirm the contract address from this file / the site — never
-   mint against the placeholder zero address.
+1. Confirm the contract address from this file / the site — use only
+   the published address.
 2. Check Agent ID: confirm holdsAgentId(your wallet) is true on the
    SPACE ID registry. If false, the wallet cannot mint — stop.
 3. Read currentPrice() and show the exact amount in the wallet

@@ -6,16 +6,17 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
 
 ## Status
 
-- Contract NOT deployed yet. NFT address is the zero-address
-  placeholder `0x0000000000000000000000000000000000000000` in
-  `config.js`, `live-count.js`, `check.html`, `mint.html`, `llms.txt`
-  and `agent-skill.md`. Update all of them with the real address
-  when the contract deploys (search for the zero address).
-- Mint: COMING SOON. No free mint, no per-wallet limit.
-- $HANA token: contract phase comes later; bonus is 12,000 $HANA per
-  paid mint (see `agent-skill.md` and `llms.txt`). No other $HANA
+- LIVE (10 Nov 2026). NFT contract
+  `0x9DFc130384A581e0156B8665e8e8c2100fb82621` and $HANA token
+  `0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5`, both deployed and
+  source-verified on BscScan. Mint is ACTIVE (mintActive() is true).
+- Mint: LIVE, agent-only. No free mint, no per-wallet limit.
+- $HANA token: live, max supply 1,000,000,000 (460,000,000 treasury,
+  540,000,000 bonus pool); bonus is 12,000 $HANA per paid mint
+  (see `agent-skill.md` and `llms.txt`). No other $HANA
   amounts are promised anywhere on the site.
-- NFT symbol is PROVISIONAL: "HANAMI" (see `config.js`).
+- NFT symbol: "HANAMI" (see `config.js`).
+- Official X: https://x.com/hanami_bloom (linked in every footer).
 
 ## Hosting
 
@@ -27,15 +28,15 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
 
 - `index.html` — hero, 4 rarity cards, how-it-works, $HANA note,
   facts, roadmap, market teaser, FAQ.
-- `mint.html` — agent-only explanation, agent prompt (placeholder
-  address, reads `currentPrice()` on-chain), Agent ID checker
+- `mint.html` — agent-only explanation, agent prompt (live contract
+  address, reads `currentPrice()` on-chain), one-tap copy button at
+  the top (clicking Mint copies the agent prompt), Agent ID checker
   (reads `holdsAgentId` on the SPACE ID registry via public RPC).
 - `check.html` — check an NFT by token ID (1–3,333) and a wallet
-  (balanceOf + Agent ID); both show "contract not deployed" and make
-  no contract calls until the real address is set.
+  (balanceOf + Agent ID); both read the live contract on-chain.
 - `gallery.html` — one preview per rarity with supply counts.
-- `market.html` — Element link (collection not indexed yet — contract
-  not deployed), step-by-step listing guide, 5% royalty note.
+- `market.html` — Element link (collection appears automatically once
+  the first blooms are minted), step-by-step listing guide, 5% royalty note.
 
 ## i18n
 
@@ -62,8 +63,8 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
 - `config.js` — addresses, chain, deck hash, base URI, supply.
 - `i18n.js` — JA/EN dictionary (fallback English).
 - `live-count.js` — polls `totalSupply()` every 3s and `mintActive()`
-  every 30s once deployed; with the placeholder address it makes no
-  calls and shows "–" / coming soon.
+  every 30s against the live contract; shows "–" only if the RPC
+  read fails.
 - `style.css` — ukiyo-e palette (indigo, sakura pink, cream).
 - `images/` — 4 approved artwork previews (WebP).
 - `robots.txt`, `sitemap.xml`, `llms.txt`, `agents.json`,

@@ -1,17 +1,16 @@
 /* HANAMI BLOOM site config — single source of truth for contract addresses.
    Japanese name of the project: 花見 (Hanami). English name: HANAMI BLOOM.
-   STATUS: contract NOT yet deployed — NFT_ADDRESS is the zero-address
-   placeholder. Update it (and TOKEN_ADDRESS when $HANA deploys) and the
-   pages will start reading the live contract. No BNB prices anywhere:
+   STATUS: LIVE — both contracts deployed and verified on BscScan
+   (10 Nov 2026). Mint is ACTIVE. No BNB prices anywhere:
    the mint price is read from the contract (currentPrice) at mint time. */
 var HANAMI_CONFIG = {
   // BNB Chain mainnet.
   CHAIN_ID: 56,
-  // NFT contract — NOT DEPLOYED YET (placeholder, do not mint against this).
-  NFT_ADDRESS: "0x0000000000000000000000000000000000000000",
-  // $HANA token — contract phase comes later; placeholder for now.
-  TOKEN_ADDRESS: "0x0000000000000000000000000000000000000000",
-  // Symbol is PROVISIONAL ("HANAMI") until the contract is written.
+  // NFT contract — DEPLOYED + VERIFIED (v2, 10 Nov 2026), mint ACTIVE.
+  NFT_ADDRESS: "0x9DFc130384A581e0156B8665e8e8c2100fb82621",
+  // $HANA token — DEPLOYED + VERIFIED (v2, 10 Nov 2026).
+  TOKEN_ADDRESS: "0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5",
+  // Symbol (live on-chain).
   SYMBOL: "HANAMI",
   // SPACE ID Agent ID registry (agent-only gate).
   AGENT_ID_REGISTRY: "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F",

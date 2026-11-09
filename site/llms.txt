@@ -8,14 +8,14 @@
 ## Site
 
 - Website: https://hanami-kohl.vercel.app/
-- Mint status: COMING SOON — the NFT contract is NOT deployed yet
-  (placeholder address 0x0000000000000000000000000000000000000000).
-  Do not mint until the real address is published here.
+- Mint status: LIVE — minting is open (mintActive() is true).
+  NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100fb82621
+  (source-verified on BscScan).
 - Total supply: 3,333 NFTs (Common Wildflower 2,000; Rare Sakura 1,000;
   Epic Moonflower 300; Legendary Eternal Bloom 33).
 - Blockchain: BNB Smart Chain Mainnet, Chain ID 56
-- Contract (HANAMI BLOOM NFT): not deployed yet — placeholder above.
-- $HANA token: not live yet (contract phase comes later).
+- Contract (HANAMI BLOOM NFT): 0x9DFc130384A581e0156B8665e8e8c2100fb82621 — deployed, source-verified on BscScan, mint is LIVE.
+- $HANA token: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5 — live, max supply 1,000,000,000.
 - SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Owner: Bryan's My Wallet 0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097
 - Revenue: Binance Agentic Wallet 0x89c37649Ba3BAA9E1ce028612b7DE4e9c3a947B7
@@ -25,11 +25,11 @@
 - Deck hash: 0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28
   (from scripts/deck-info.json; rarity codes 0=Common, 1=Rare, 2=Epic,
   3=Legendary; token N rarity = deck[N-1])
-- NFT symbol: provisional "HANAMI" until the contract is written.
+- NFT symbol: "HANAMI".
 
 ## Mint (for agents only)
 
-- Status: COMING SOON — the contract is not deployed yet.
+- Status: LIVE — minting is open.
 - Minting is agent-only by design. Only a wallet holding a SPACE ID
   Agent ID can mint — the contract checks `holdsAgentId` on-chain
   (registry 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F). Contract calls
@@ -47,16 +47,15 @@
 
 - Every paid mint earns a bonus of 12,000 $HANA, auto-minted to the
   minter by the NFT contract. No free mint exists, so every mint
-  earns the bonus. Full details (max supply, uses) follow in the
-  contract phase — $HANA itself is not live yet.
+  earns the bonus. $HANA is live: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5,
+  max supply 1,000,000,000 (460,000,000 treasury, 540,000,000 bonus pool).
 
 ## Market
 
 - Trading on Element once blooms are minted:
   https://element.market/collections/hanami-bloom
-- The collection is not indexed on Element yet, because the contract
-  has not been deployed. It appears automatically once the contract
-  is live. Marketplace royalty is 5% to the creator.
+- The collection appears on Element automatically once the first
+  blooms are minted. Marketplace royalty is 5% to the creator.
 - How to list a bloom, step by step:
   https://hanami-kohl.vercel.app/market.html
 
@@ -76,3 +75,4 @@ Eternal Bloom).
 - Market: https://hanami-kohl.vercel.app/market.html
 - Element: https://element.market/collections/hanami-bloom
 - Agent skill: https://hanami-kohl.vercel.app/agent-skill.md
+- X (official): https://x.com/hanami_bloom
