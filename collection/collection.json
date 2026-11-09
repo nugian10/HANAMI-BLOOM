@@ -1,0 +1,140 @@
+{
+  "name": "HANAMI BLOOM",
+  "symbol": "HANAMI",
+  "total": 3333,
+  "rarities": {
+    "Common": 2000,
+    "Rare": 1000,
+    "Epic": 300,
+    "Legendary": 33
+  },
+  "tiers": {
+    "Wildflower": 2000,
+    "Sakura": 1000,
+    "Moonflower": 300,
+    "Eternal Bloom": 33
+  },
+  "salt": "0x48414e41 (\"HANA\")",
+  "deckSeedStr": "HANAMI-BLOOM-DECK-SEED-2026-11-10-v1",
+  "deckHash": "0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28",
+  "deckSha256": "0x1f617f2d359c7f3306d11884617b7adde611f05cc6c728bf5e8b96208e714fa1",
+  "deckEncoding": "keccak256/sha256 of compact JSON \"[0,0,1,...]\" (rarity codes 0=Common,1=Rare,2=Epic,3=Legendary), token N rarity = deck[N-1]",
+  "baseURI": "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/",
+  "imageBase": "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/images/",
+  "generator": "scripts/generate.py",
+  "traitCounts": {
+    "sky": {
+      "Soft Rose": 501,
+      "Deep Blue": 255,
+      "Starry Night": 243,
+      "Pale Peach": 497,
+      "Morning Mist": 510,
+      "Indigo Night": 256,
+      "Deep Indigo": 111,
+      "Twilight Indigo": 246,
+      "Dawn Pink": 492,
+      "Violet Night": 93,
+      "Midnight Purple": 96,
+      "Midnight Gold": 12,
+      "Deep Celestial": 14,
+      "Celestial Blue": 7
+    },
+    "hue": {
+      "White": 487,
+      "Mixed Bloom": 496,
+      "Blush Pink": 506,
+      "Rose": 511
+    },
+    "petal_fall": {
+      "Petal Storm": 755,
+      "Light": 748,
+      "Heavy": 749,
+      "Moderate": 748
+    },
+    "meadow": {
+      "Moss Slope": 677,
+      "Sage Field": 664,
+      "Green Meadow": 659
+    },
+    "motif": {
+      "Fireflies": 491,
+      "Clouds": 504,
+      "Grass Tufts": 501,
+      "Birds": 504
+    },
+    "blossom": {
+      "Soft Pink": 254,
+      "Pale Blush": 270,
+      "Deep Rose": 245,
+      "Sakura White": 231
+    },
+    "tree": {
+      "Spreading": 243,
+      "Leaning Left": 240,
+      "Leaning Right": 256,
+      "Upright": 261
+    },
+    "fuji": {
+      "Right Peak": 341,
+      "Distant Center": 340,
+      "Left Peak": 319
+    },
+    "moon": {
+      "Full Moon": 105,
+      "High Moon": 93,
+      "Low Moon": 102
+    },
+    "bloom": {
+      "White Glow": 103,
+      "Pale Lavender": 101,
+      "Moonlight Blue": 96
+    },
+    "vine": {
+      "Twin Vines": 100,
+      "Right Climb": 94,
+      "Left Climb": 106
+    },
+    "clouds": {
+      "Scattered": 103,
+      "Wispy": 109,
+      "Thick Bands": 88
+    },
+    "aura": {
+      "Golden": 7,
+      "Pale Gold": 14,
+      "Rose Gold": 12
+    },
+    "canopy": {
+      "Full Bloom": 14,
+      "Eternal Canopy": 10,
+      "Radiant Crown": 9
+    },
+    "crescents": {
+      "One Crescent": 10,
+      "Crescent Trio": 13,
+      "Twin Crescents": 10
+    },
+    "rays": {
+      "Soft Rays": 17,
+      "Radiant Rays": 16
+    },
+    "frame": {
+      "Washi Edge": 999,
+      "Gold Line": 1092,
+      "Double Ink": 1107,
+      "Moonlight Silver": 102,
+      "Gold Double": 14,
+      "Celestial Gold": 19
+    }
+  },
+  "distinctSvgHashes": 3333,
+  "distinctTraitCombos": 3333,
+  "contract": {
+    "status": "not deployed",
+    "address": ""
+  },
+  "storage": {
+    "status": "github",
+    "note": "images + metadata served from GitHub raw"
+  }
+}
