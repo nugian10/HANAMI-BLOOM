@@ -1,0 +1,39 @@
+{
+  "name": "HANAMI BLOOM #2709",
+  "description": "HANAMI BLOOM #2709 \u2014 white moonflowers opening beneath a full moon on a violet night. One of 3,333 cherry-blossom artworks on BNB Smart Chain.",
+  "image": "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/images/2709.svg",
+  "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Epic"
+    },
+    {
+      "trait_type": "Tier",
+      "value": "Moonflower"
+    },
+    {
+      "trait_type": "Sky",
+      "value": "Midnight Purple"
+    },
+    {
+      "trait_type": "Moon",
+      "value": "Low Moon"
+    },
+    {
+      "trait_type": "Bloom",
+      "value": "White Glow"
+    },
+    {
+      "trait_type": "Vine",
+      "value": "Right Climb"
+    },
+    {
+      "trait_type": "Clouds",
+      "value": "Scattered"
+    },
+    {
+      "trait_type": "Frame",
+      "value": "Double Ink"
+    }
+  ]
+}
