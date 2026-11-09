@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy the HANAMI BLOOM Contracts — Owner Tool</title>
+<meta name="description" content="Owner tool to deploy the HANAMI BLOOM NFT + $HANA token contracts to BNB Smart Chain from a browser wallet. Not a public page.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --bg:#0d0910; --bg2:#171019; --card:#1d1420; --card2:#271a28; --line:#3d2b3e;
+    --gold:#f2a6c0; --gold2:#d97a9e; --gold-soft:#ffd7e6; --blue:#7fb2ff; --blue2:#4a7dff;
+    --purple:#b388ff; --green:#7dd87d; --red:#ff7a7a;
+    --text:#f5eef2; --muted:#bfa9b8;
+  }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue)}
+  header{position:sticky;top:0;background:rgba(13,9,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:10}
+  .nav{max-width:960px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
+  .logo{font-family:Georgia,serif;color:var(--gold);text-decoration:none;font-size:18px;font-weight:700}
+  .badge{display:inline-block;background:linear-gradient(135deg,#3a1020,#4a1530);color:var(--gold);border:1px solid var(--gold2);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;letter-spacing:.04em}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  .hero{position:relative;overflow:hidden;text-align:center;padding:48px 20px 32px;background:radial-gradient(ellipse 80% 60% at 50% 0%,#4a1e33 0%,#1d1420 55%,var(--bg) 100%)}
+  .hero h1{font-size:clamp(24px,6vw,40px);margin:.2em 0}
+  .hero .lead{color:var(--muted);max-width:640px;margin:0 auto}
+  .tag{color:var(--gold);font-weight:800;letter-spacing:.08em;font-size:13px}
+  .hidden{display:none !important}
+  .step{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;margin-top:18px;max-width:680px;margin-left:auto;margin-right:auto}
+  .step h2{font-size:18px;margin:0 0 6px;color:var(--gold)}
+  .step.todo{opacity:.55}
+  .step.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,166,192,.25)}
+  .step.blocked{border-color:var(--red)}
+  .step.done{border-color:var(--green)}
+  .step.done h2::after{content:" \2713";color:var(--green)}
+  .btn{display:block;width:100%;min-height:52px;margin:12px 0 0;padding:14px 18px;font-size:17px;font-weight:800;font-family:inherit;color:#1d0a12;background:var(--gold);border:2px solid var(--gold);border-radius:14px;cursor:pointer;text-align:center}
+  .btn:hover:not(:disabled){background:var(--gold-soft)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.primary{background:#b3541e;border-color:#b3541e;color:#F6EFDC}
+  .btn.primary:hover:not(:disabled){background:#96431a}
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn.ghost:hover:not(:disabled){background:var(--card2)}
+  .btn.small{width:auto;display:inline-block;min-height:44px;font-size:15px;padding:10px 16px;margin-top:8px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;overflow-wrap:anywhere;word-break:break-word}
+  .kv{width:100%;border-collapse:collapse;margin:10px 0;background:var(--card2)}
+  .kv th,.kv td{border:1px solid var(--line);padding:10px 12px;text-align:left;font-size:15px;vertical-align:top}
+  .kv th{background:var(--bg2);color:var(--gold);width:34%}
+  .badge2{display:inline-block;font-weight:800;font-size:14px;padding:6px 12px;border-radius:999px;margin:6px 0}
+  .badge2.ok{background:#14331a;color:var(--green)}
+  .badge2.bad{background:#3d1212;color:var(--red)}
+  .note-box{max-width:680px;margin:16px auto 0;padding:14px 16px;border-radius:14px;border:2px solid var(--line);font-size:15px}
+  .note-box.info{background:var(--card2);border-color:var(--blue)}
+  .note-box.warn{background:#2a1a08;border-color:#b3541e}
+  .note-box.error{background:#2a0d0d;border-color:var(--red)}
+  .note-box.ok{background:#0f2a12;border-color:var(--green)}
+  .warn-box{background:#2a0d0d;border:2px solid var(--red);border-radius:14px;padding:14px 16px;margin-top:12px}
+  .status-line{margin:8px 0}
+  .status-line strong{display:block;font-size:15px}
+  .cost{font-size:26px;font-weight:900;margin:4px 0;color:var(--gold)}
+  input.addr{width:100%;min-height:52px;padding:12px 14px;font-size:15px;font-family:inherit;border:2px solid var(--line);border-radius:12px;background:var(--bg2);color:var(--text);box-sizing:border-box}
+  input.addr[readonly]{opacity:.85}
+  .done-box{background:#0f2a12;border:2px solid var(--green);border-radius:16px;padding:18px;margin-top:18px;max-width:680px;margin-left:auto;margin-right:auto}
+  .done-box h2{margin-top:0}
+  .done-box ol{padding-left:22px}
+  .done-box li{margin:8px 0}
+  .check-pass{color:var(--green);font-weight:800}
+  .check-fail{color:var(--red);font-weight:800}
+  details{margin-top:10px}
+  summary{cursor:pointer;color:var(--gold);font-weight:700}
+  footer{text-align:center;color:var(--muted);font-size:14px;padding:32px 20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <span class="logo">花見 BLOOM</span>
+    <span class="badge">OWNER TOOL</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="margin-top:24px">
+    <p class="tag">OWNER ONLY &mdash; NOT A PUBLIC PAGE</p>
+    <h1>Deploy the HANAMI BLOOM Contracts</h1>
+    <p class="lead">Deploy the HANAMI BLOOM NFT contract and the $HANA token to BNB Smart Chain from your own browser wallet. No private key, no seed phrase &mdash; ever. Your wallet signs each transaction after you click.</p>
+  </section>
+
+  <div class="note-box warn" style="margin-top:24px">
+    <strong>Safety first.</strong> This page will <strong>never</strong> ask for your seed phrase or private key.
+    Only connect your browser wallet (MetaMask / Binance Wallet). If any page or person asks for your seed phrase, it is a scam &mdash; stop immediately.
+    Deployment costs real BNB (see the estimate in step 2 before you sign anything).
+  </div>
+
+  <div class="note-box info">
+    <strong>Two contracts, in this order.</strong> Deploy the <strong>$HANA token first</strong> (step 3) &mdash; the NFT contract needs the token address in its constructor.
+    Then deploy <strong>HanamiBloomNFT</strong> (step 4), call <strong>setMinter</strong> on the token (step 5), verify on-chain (step 6), and activate minting (step 7).
+    The deployer wallet only pays gas &mdash; the <strong>owner of both contracts is Bryan's My Wallet</strong>
+    (<code class="mono">0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097</code>), set as a constructor argument,
+    while mint payments and the 5% royalty go to the Binance Agentic Wallet (revenue).
+    Steps 5 and 7 are owner-only: connect My Wallet to run them here.
+    Minting starts <strong>OFF</strong>. Agent-only via SPACE ID Agent ID, enforced on-chain.
+  </div>
+
+  <div class="note-box info">
+    <strong>What the contracts do.</strong> 3,333 ukiyo-e sakura NFTs (Common Wildflower 2,000 / Rare Sakura 1,000 / Epic Moonflower 300 / Legendary Eternal Bloom 33),
+    drawn from a deterministic deck (deck hash committed on-chain, full deck published off-chain). No free mint, no per-wallet limit.
+    Each paid mint also mints a $HANA bonus to the minter. $HANA: max supply 1,000,000,000 &mdash; 460,000,000 treasury pre-minted to the owner at deploy, 540,000,000 bonus pool mintable only by the NFT contract.
+    The mint price is read from the contract at mint time &mdash; it is never written on this page or the site.
+  </div>
+
+  <div id="note" class="note-box info hidden" role="status"></div>
+
+  <!-- Step 1 -->
+  <section class="step todo" id="step-1">
+    <h2>Step 1 &mdash; Connect your wallet</h2>
+    <p>Connect My Wallet (the owner wallet) on <strong>BNB Smart Chain (chain 56)</strong>. This wallet pays gas and becomes the owner of both contracts. If you are on another network, the page will offer to switch.</p>
+    <p class="status-line"><strong>Wallet:</strong> <span id="wallet-status">Not connected.</span></p>
+    <p class="status-line hidden" id="wallet-address-row"><strong>Address:</strong> <code class="mono" id="wallet-address"></code></p>
+    <p class="status-line"><strong>Network:</strong> <span id="chain-status">&mdash;</span></p>
+    <p class="status-line"><strong>Contract files:</strong> <span id="artifact-status">Loading&hellip;</span></p>
+    <button class="btn" id="connect-btn" type="button">Connect Wallet</button>
+    <div id="switch-row" class="hidden">
+      <button class="btn ghost" id="switch-btn" type="button">Switch to BNB Smart Chain</button>
+    </div>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="step todo" id="step-2">
+    <h2>Step 2 &mdash; What will be deployed</h2>
+    <p>These constructor values are locked in this page and match the contract source. Check them against the contract source before deploying. Nothing here is editable.</p>
+    <table class="kv">
+      <tr><th>$HANA token &mdash; initialOwner</th><td><code class="mono">__OWNER__</code><br>Bryan's My Wallet (owner; receives the 460,000,000 $HANA treasury at deploy)</td></tr>
+      <tr><th>NFT &mdash; 1. Owner (initialOwner)</th><td><code class="mono">__OWNER__</code><br>Bryan's My Wallet (owner of the NFT contract)</td></tr>
+      <tr><th>NFT &mdash; 2. Revenue wallet</th><td><code class="mono">__REVENUE__</code><br>Binance Agentic Wallet &mdash; mint payments go here directly, and the 5% royalty goes here</td></tr>
+      <tr><th>NFT &mdash; 3. Agent ID registry</th><td><code class="mono">__REGISTRY__</code><br>SPACE ID (.ai Agent ID) &mdash; only Agent ID holders can mint</td></tr>
+      <tr><th>NFT &mdash; 4. Base URI</th><td><code class="mono">__BASE_URI__</code><br>Metadata folder (tokenURI = baseURI + tokenId + &ldquo;.json&rdquo;)</td></tr>
+      <tr><th>NFT &mdash; 5. Deck hash</th><td><code class="mono">__DECK_HASH__</code><br>keccak256 of the 3,333-entry deck, verified off-chain</td></tr>
+      <tr><th>NFT &mdash; 6. Rarity bitmap</th><td>27 words (2 bits per token) built from the published deck &mdash; embedded in this page, lets the contract know each token's rarity</td></tr>
+      <tr><th>NFT &mdash; 7. $HANA token</th><td>Address of the token deployed in step 3 (filled in automatically)</td></tr>
+      <tr><th>Supply / rules</th><td>3,333 NFTs (Common 2,000, Rare 1,000, Epic 300, Legendary 33). No free mint, no per-wallet limit. Mint bonus per paid mint is paid in $HANA. Minting starts OFF.</td></tr>
+    </table>
+    <p class="status-line"><strong>Live gas price:</strong> <span id="gas-price">&mdash;</span></p>
+    <p class="status-line"><strong>Estimated gas (measured locally):</strong> <span id="gas-estimate">&mdash;</span></p>
+    <p class="cost" id="cost-bnb">&mdash; BNB</p>
+    <p class="status-line"><span id="cost-idr">&mdash;</span></p>
+    <p class="note" id="estimate-status">Reading the live gas price&hellip;</p>
+    <button class="btn ghost" id="refresh-estimate-btn" type="button">Refresh estimate</button>
+  </section>
+
+  <!-- Step 3 -->
+  <section class="step todo" id="step-3">
+    <h2>Step 3 &mdash; Deploy the $HANA token</h2>
+    <p>One transaction, sent from the connected wallet. Your wallet will show the exact cost &mdash; check it matches the estimate above before you confirm. The owner (My Wallet) receives the 460,000,000 $HANA treasury in this same transaction. No minter is set yet &mdash; that is step 5.</p>
+    <button class="btn primary" id="deploy-token-btn" type="button" disabled>DEPLOY $HANA TOKEN</button>
+    <p class="status-line" id="deploy-token-status">Waiting for steps 1&ndash;2.</p>
+    <p class="status-line hidden" id="deploy-token-tx-row"><strong>Transaction:</strong> <a id="deploy-token-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="deploy-token-tx"></code></a></p>
+    <div id="token-deployed-row" class="hidden">
+      <p class="status-line"><strong>$HANA token address:</strong><br><code class="mono" id="token-address"></code>
+        <button class="btn small ghost" id="copy-token-btn" type="button">Copy</button></p>
+      <p><a id="token-address-link" href="#" target="_blank" rel="noopener">View contract on BscScan</a> &middot;
+         <a id="token-verify-link" href="#" target="_blank" rel="noopener">Verify source on BscScan</a></p>
+      <p class="status-line">Save this address &mdash; step 4 needs it, and the site config needs it later. Source verification: compiler 0.8.24, optimizer runs 200, EVM cancun, license MIT.</p>
+    </div>
+  </section>
+
+  <!-- Step 4 -->
+  <section class="step todo" id="step-4">
+    <h2>Step 4 &mdash; Deploy the HanamiBloomNFT</h2>
+    <p>One transaction, sent from the connected wallet. Your wallet will show the exact cost &mdash; check it matches the estimate above before you confirm. Owner is set to My Wallet. Minting stays <strong>off</strong> after deploy.</p>
+    <label for="nft-token-address"><strong>$HANA token address (from step 3)</strong></label>
+    <input class="addr" id="nft-token-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 3)">
+    <details>
+      <summary>Constructor arguments used (read-only)</summary>
+      <table class="kv">
+        <tr><th>initialOwner</th><td><code class="mono">__OWNER__</code></td></tr>
+        <tr><th>revenueWallet</th><td><code class="mono">__REVENUE__</code></td></tr>
+        <tr><th>agentIdRegistry</th><td><code class="mono">__REGISTRY__</code></td></tr>
+        <tr><th>baseURI</th><td><code class="mono">__BASE_URI__</code></td></tr>
+        <tr><th>deckHash</th><td><code class="mono">__DECK_HASH__</code></td></tr>
+        <tr><th>rarityBitmap</th><td>27 words, embedded in this page (see step 2)</td></tr>
+        <tr><th>hanaToken</th><td>Address from step 3</td></tr>
+      </table>
+    </details>
+    <button class="btn primary" id="deploy-nft-btn" type="button" disabled>DEPLOY HANAMI BLOOM NFT</button>
+    <p class="status-line" id="deploy-nft-status">Waiting for step 3.</p>
+    <p class="status-line hidden" id="deploy-nft-tx-row"><strong>Transaction:</strong> <a id="deploy-nft-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="deploy-nft-tx"></code></a></p>
+    <div id="nft-deployed-row" class="hidden">
+      <p class="status-line"><strong>NFT contract address:</strong><br><code class="mono" id="nft-address"></code>
+        <button class="btn small ghost" id="copy-nft-btn" type="button">Copy</button></p>
+      <p><a id="nft-address-link" href="#" target="_blank" rel="noopener">View contract on BscScan</a> &middot;
+         <a id="nft-verify-link" href="#" target="_blank" rel="noopener">Verify source on BscScan</a></p>
+      <p class="status-line">Save this address &mdash; steps 5&ndash;7 need it, and the site config needs it later. Source verification: compiler 0.8.24, optimizer runs 200, EVM cancun, license MIT.</p>
+    </div>
+  </section>
+
+  <!-- Step 5 -->
+  <section class="step todo" id="step-5">
+    <h2>Step 5 &mdash; Set minter on the $HANA token (owner only)</h2>
+    <p>The NFT contract must be allowed to mint $HANA (the per-mint bonus). This is the owner-only call <code>setMinter(nftAddress, true)</code> on the token deployed in step 3. Without it, every mint reverts.</p>
+    <p><span class="badge2" id="minter-badge">Not checked yet</span></p>
+    <p class="status-line"><strong>Token owner (must be My Wallet):</strong> <span id="token-owner-status">&mdash;</span></p>
+    <p class="status-line"><strong>minters(NFT) now:</strong> <span id="minter-now-status">&mdash;</span></p>
+    <label for="minter-nft-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="minter-nft-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <div id="minter-owner-row" class="hidden">
+      <p class="status-line">Connected wallet is the owner (My Wallet). You can run this step here.</p>
+      <button class="btn primary" id="setminter-btn" type="button" disabled>SET MINTER (NFT)</button>
+      <p class="status-line" id="setminter-status">Waiting for deploy.</p>
+      <p class="status-line hidden" id="setminter-tx-row"><strong>Transaction:</strong> <a id="setminter-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="setminter-tx"></code></a></p>
+    </div>
+    <div id="minter-agent-row" class="hidden">
+      <p class="status-line">The connected wallet is <strong>not</strong> the owner, so this step cannot be signed here. Connect My Wallet (the owner) to run it here, or run this call from My Wallet:</p>
+      <p class="status-line"><code class="mono" id="minter-call">HanaToken(tokenAddress).setMinter(nftAddress, true)</code></p>
+      <button class="btn ghost small" id="copy-minter-call-btn" type="button">Copy the call</button>
+      <p class="status-line" id="minter-manual-status">After My Wallet confirms the transaction, check <code>minters(nftAddress)</code> on the token &mdash; it must read <code>true</code>.</p>
+    </div>
+    <button class="btn ghost small" id="refresh-minter-btn" type="button">Refresh minter status</button>
+  </section>
+
+  <!-- Step 6 -->
+  <section class="step todo" id="step-6">
+    <h2>Step 6 &mdash; Verify on-chain (read-only)</h2>
+    <p>Reads both contracts' state straight from BNB Smart Chain and checks it against the expected values. No transaction, no gas, nothing is signed.</p>
+    <label for="verify-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="verify-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <label for="verify-token-address"><strong>$HANA token address</strong></label>
+    <input class="addr" id="verify-token-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 3)">
+    <button class="btn" id="verify-btn" type="button" disabled>RUN ON-CHAIN CHECKS</button>
+    <table class="kv hidden" id="verify-table">
+      <tr><th>Check</th><th>On-chain value</th><th>Expected</th><th>Result</th></tr>
+      <tr><td>NFT deckHash()</td><td><code class="mono" id="v-deckhash">-</code></td><td><code class="mono">__DECK_HASH_SHORT__</code></td><td id="v-deckhash-r">-</td></tr>
+      <tr><td>NFT owner()</td><td><code class="mono" id="v-owner">-</code></td><td><code class="mono">0x0262&hellip;4097</code> (My Wallet)</td><td id="v-owner-r">-</td></tr>
+      <tr><td>NFT revenueWallet()</td><td><code class="mono" id="v-revenue">-</code></td><td><code class="mono">0x89c3&hellip;47B7</code> (Agentic)</td><td id="v-revenue-r">-</td></tr>
+      <tr><td>NFT royaltyInfo(1, 10000) receiver</td><td><code class="mono" id="v-royalty-addr">-</code></td><td><code class="mono">0x89c3&hellip;47B7</code> (Agentic)</td><td id="v-royalty-addr-r">-</td></tr>
+      <tr><td>NFT royaltyInfo(1, 10000) amount</td><td><code class="mono" id="v-royalty-amt">-</code></td><td>500 (5% of 10000)</td><td id="v-royalty-amt-r">-</td></tr>
+      <tr><td>NFT mintActive()</td><td><code class="mono" id="v-mintactive">-</code></td><td>false (before step 7)</td><td id="v-mintactive-r">-</td></tr>
+      <tr><td>NFT MAX_SUPPLY</td><td><code class="mono" id="v-maxsupply">-</code></td><td>3333</td><td id="v-maxsupply-r">-</td></tr>
+      <tr><td>NFT hanaToken()</td><td><code class="mono" id="v-token">-</code></td><td><code class="mono" id="v-token-exp">-</code></td><td id="v-token-r">-</td></tr>
+      <tr><td>NFT baseURI()</td><td><code class="mono" id="v-baseuri">-</code></td><td><code class="mono">__BASE_URI__</code></td><td id="v-baseuri-r">-</td></tr>
+      <tr><td>NFT name() / symbol()</td><td><code class="mono" id="v-name">-</code></td><td>HANAMI BLOOM / HANAMI</td><td id="v-name-r">-</td></tr>
+      <tr><td>Token owner()</td><td><code class="mono" id="v-token-owner">-</code></td><td><code class="mono">0x0262&hellip;4097</code> (My Wallet)</td><td id="v-token-owner-r">-</td></tr>
+      <tr><td>Token MAX_SUPPLY</td><td><code class="mono" id="v-token-max">-</code></td><td>1,000,000,000 $HANA</td><td id="v-token-max-r">-</td></tr>
+      <tr><td>Token totalSupply()</td><td><code class="mono" id="v-token-supply">-</code></td><td>460,000,000 $HANA (treasury)</td><td id="v-token-supply-r">-</td></tr>
+      <tr><td>Token minters(NFT)</td><td><code class="mono" id="v-minter">-</code></td><td>true (after step 5)</td><td id="v-minter-r">-</td></tr>
+    </table>
+    <p class="status-line" id="verify-status">Enter the deployed contract addresses first.</p>
+  </section>
+
+  <!-- Step 7 -->
+  <section class="step todo" id="step-7">
+    <h2>Step 7 &mdash; Activate minting (owner only)</h2>
+    <p>Turn minting on with <code>setMintActive(true)</code>. One small transaction from the owner wallet.</p>
+    <label for="activate-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="activate-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <p class="status-line" id="activate-estimate">Enter the deployed contract address first.</p>
+    <button class="btn ghost small" id="refresh-activate-btn" type="button">Refresh activation estimate</button>
+    <button class="btn primary" id="activate-btn" type="button" disabled>ACTIVATE MINT</button>
+    <p class="status-line" id="activate-status">Waiting for deploy.</p>
+    <p class="status-line hidden" id="activate-tx-row"><strong>Transaction:</strong> <a id="activate-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="activate-tx"></code></a></p>
+  </section>
+
+  <!-- Step 8 -->
+  <section class="step todo" id="step-8">
+    <h2>Step 8 &mdash; Close minting (owner only)</h2>
+    <p>This stops all new mints with <code>setMintActive(false)</code>. NFTs already minted are unaffected, and the owner can re-open minting later with <code>setMintActive(true)</code>. One small transaction from the owner wallet.</p>
+    <label for="close-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="close-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <p class="status-line" id="close-estimate">Connect your wallet first.</p>
+    <button class="btn ghost small" id="refresh-close-btn" type="button">Refresh close estimate</button>
+    <button class="btn primary" id="close-btn" type="button" disabled>CLOSE MINT</button>
+    <p class="status-line" id="close-status">Waiting for wallet.</p>
+    <p class="status-line hidden" id="close-tx-row"><strong>Transaction:</strong> <a id="close-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="close-tx"></code></a></p>
+  </section>
+
+  <div id="done-box" class="done-box hidden">
+    <h2>Launch checklist</h2>
+    <ol>
+      <li><strong>Verify the source on BscScan</strong> (both contracts) &mdash; open each contract on BscScan &rarr; Contract &rarr; Verify and Publish, compiler 0.8.24, optimizer runs 200, EVM cancun, license MIT.</li>
+      <li><strong>Confirm setMinter</strong> &mdash; on the $HANA token, <code>minters(nftAddress)</code> reads <code>true</code>.</li>
+      <li><strong>Confirm the on-chain checks</strong> &mdash; all rows in step 6 must show PASS.</li>
+      <li><strong>Update the site</strong> &mdash; put the real NFT + token addresses in <code>site/config.js</code>, <code>agent-skill.md</code> and <code>llms.txt</code>, then redeploy the site.</li>
+      <li><strong>Announce the launch</strong> on X.</li>
+    </ol>
+  </div>
+
+  <footer>
+    <p>HANAMI BLOOM &mdash; 花見 &mdash; owner deploy tool for the NFT + $HANA contracts. Not a public page. Contract source is verifiable on BscScan; it is not an independent audit.</p>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+// HANAMI BLOOM — browser-wallet deploy page logic (owner tool).
+// Uses ONLY the connected browser wallet (MetaMask / Binance Wallet) to sign.
+// This page NEVER asks for, accepts, or handles a seed phrase or private key.
+// Every transaction needs the user's explicit click + wallet confirmation.
+//
+// Deploys TWO contracts, in order: (1) HanaToken, (2) HanamiBloomNFT
+// (the NFT needs the token address in its constructor). After deploy,
+// the owner must call setMinter(nft, true) on the token (step 5),
+// or every mint reverts. Requires ethers v6 (UMD build) from CDN.
+// ABI + bytecode + the 27-word rarity bitmap are embedded below, so this
+// single file works standalone (no artifact fetch, no site files needed).
+(function () {
+  "use strict";
+
+  // ---- Locked deployment parameters (verified against
+  // contracts/HanamiBloomNFT.sol, contracts/HanaToken.sol,
+  // collection/collection.json and collection/rarity-bitmap.json
+  // — do not change here) ----
+  var OWNER = "__OWNER__"; // Bryan's My Wallet (owner of both contracts)
+  var REVENUE = "__REVENUE__"; // Binance Agentic Wallet (revenue + royalty)
+  var REGISTRY = "__REGISTRY__"; // SPACE ID Agent ID registry
+  var BASE_URI = "__BASE_URI__";
+  var DECK_HASH = "__DECK_HASH__";
+  var BSC_CHAIN_ID = 56n;
+  var BSC_CHAIN_HEX = "0x38";
+  var MEASURED_TOKEN_GAS = 818208; // hardhat measurement (Nov 2026, scripts/measure-deploy-gas.js)
+  var MEASURED_NFT_GAS = 3072431; // hardhat measurement
+  var MEASURED_SETMINTER_GAS = 47832; // hardhat measurement
+  var MEASURED_ACTIVATE_GAS = 29854; // hardhat measurement for setMintActive(true)
+  var MEASURED_CLOSE_GAS = 29854; // same setMintActive call as activate
+  var BNB_IDR_REF = 12401357; // reference rate only, for the estimate display (CoinGecko, 10 Nov 2026)
+
+  // ---- Embedded contract data (from the compiled artifacts) ----
+  var TOKEN_ABI = __TOKEN_ABI__;
+  var TOKEN_BYTECODE = "__TOKEN_BYTECODE__";
+  var NFT_ABI = __NFT_ABI__;
+  var NFT_BYTECODE = "__NFT_BYTECODE__";
+  var RARITY_BITMAP = __BITMAP_JSON__;
+
+  // ---- Minimal ABIs for calls after deploy ----
+  var TOKEN_RW_ABI = [
+    "function owner() view returns (address)",
+    "function totalSupply() view returns (uint256)",
+    "function MAX_SUPPLY() view returns (uint256)",
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function minters(address) view returns (bool)",
+    "function setMinter(address minter, bool allowed)"
+  ];
+  var NFT_RW_ABI = [
+    "function owner() view returns (address)",
+    "function revenueWallet() view returns (address)",
+    "function deckHash() view returns (bytes32)",
+    "function hanaToken() view returns (address)",
+    "function baseURI() view returns (string)",
+    "function MAX_SUPPLY() view returns (uint256)",
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function mintActive() view returns (bool)",
+    "function totalSupply() view returns (uint256)",
+    "function royaltyInfo(uint256 tokenId, uint256 salePrice) view returns (address receiver, uint256 royaltyAmount)",
+    "function setMintActive(bool active)"
+  ];
+
+  var RPC_URL = "https://bsc-dataseed.binance.org/";
+  var BSCSCAN = "https://bscscan.com/address/";
+  var BSCSCAN_TX = "https://bscscan.com/tx/";
+
+  var pubProvider = null;
+  var walletProvider = null;
+  var signer = null;
+  var account = null;
+  var tokenAddress = "";
+  var nftAddress = "";
+
+  function el(id) { return document.getElementById(id); }
+  function shortAddr(a) { return a ? a.slice(0, 6) + "\u2026" + a.slice(-4) : "-"; }
+  function fmtBnb(wei) {
+    try { return ethers.formatEther(wei); } catch (e) { return "?"; }
+  }
+  function fmtIdr(bnbStr) {
+    var n = parseFloat(bnbStr);
+    if (isNaN(n)) return "-";
+    return "Rp " + Math.round(n * BNB_IDR_REF).toLocaleString("id-ID");
+  }
+  function showNote(msg, kind) {
+    var n = el("note");
+    n.className = "note-box " + (kind || "info");
+    n.innerHTML = msg;
+    n.classList.remove("hidden");
+  }
+  function setStep(id, state) {
+    var s = el(id);
+    if (!s) return;
+    s.classList.remove("todo", "active", "blocked", "done");
+    s.classList.add(state);
+  }
+  function getPubProvider() {
+    if (!pubProvider) pubProvider = new ethers.JsonRpcProvider(RPC_URL);
+    return pubProvider;
+  }
+  function isAddr(v) {
+    try { return v && ethers.isAddress(v) && v !== ethers.ZeroAddress; } catch (e) { return false; }
+  }
+
+  // ---- Gas estimates (live gas price, measured gas) ----
+  var lastGasPrice = null;
+  function costText(gas) {
+    if (!lastGasPrice) return { bnb: "-", idr: "-" };
+    var wei = lastGasPrice * BigInt(gas);
+    var bnb = fmtBnb(wei);
+    return { bnb: bnb + " BNB", idr: fmtIdr(bnb) };
+  }
+  async function refreshEstimates() {
+    var status = el("estimate-status");
+    try {
+      var fee = await getPubProvider().getFeeData();
+      lastGasPrice = fee.gasPrice;
+      var totalGas = MEASURED_TOKEN_GAS + MEASURED_NFT_GAS + MEASURED_SETMINTER_GAS + MEASURED_ACTIVATE_GAS;
+      var total = costText(totalGas);
+      el("gas-price").textContent = (Number(ethers.formatUnits(lastGasPrice, "gwei"))).toFixed(3) + " gwei";
+      el("gas-estimate").textContent = totalGas.toLocaleString("en-US") + " gas total (token " + MEASURED_TOKEN_GAS.toLocaleString("en-US") + " + NFT " + MEASURED_NFT_GAS.toLocaleString("en-US") + " + setMinter " + MEASURED_SETMINTER_GAS.toLocaleString("en-US") + " + activate " + MEASURED_ACTIVATE_GAS.toLocaleString("en-US") + ")";
+      el("cost-bnb").textContent = total.bnb;
+      el("cost-idr").textContent = total.idr + " (at the live gas price; the wallet shows the exact cost before you confirm)";
+      if (status) status.textContent = "Estimate refreshed. Actual cost depends on the gas price when you sign.";
+    } catch (e) {
+      if (status) status.textContent = "Could not read the live gas price (" + (e && e.message ? e.message : e) + "). The wallet will still show the exact cost before you confirm.";
+    }
+  }
+
+  // ---- Step 1: connect ----
+  async function connectWallet() {
+    if (!window.ethereum) {
+      showNote("No browser wallet found. Install MetaMask or Binance Wallet, then reload this page.", "error");
+      return;
+    }
+    try {
+      walletProvider = new ethers.BrowserProvider(window.ethereum);
+      var accounts = await walletProvider.send("eth_requestAccounts", []);
+      account = accounts[0];
+      signer = await walletProvider.getSigner();
+      var net = await walletProvider.getNetwork();
+      el("wallet-status").textContent = "Connected.";
+      el("wallet-address").textContent = account;
+      el("wallet-address-row").classList.remove("hidden");
+      el("chain-status").textContent = net.chainId === BSC_CHAIN_ID ? "BNB Smart Chain (56) \u2713" : "Chain " + net.chainId + " \u2014 wrong network";
+      el("artifact-status").textContent = "Loaded (embedded ABI + bytecode, 27-word bitmap) \u2713";
+      if (net.chainId !== BSC_CHAIN_ID) {
+        el("switch-row").classList.remove("hidden");
+      } else {
+        el("switch-row").classList.add("hidden");
+      }
+      setStep("step-1", "done");
+      setStep("step-2", "active");
+      updateButtons();
+      await refreshEstimates();
+      await refreshMinterStatus();
+    } catch (e) {
+      showNote("Wallet connection failed: " + (e && e.message ? e.message : e), "error");
+    }
+  }
+  async function switchChain() {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC_CHAIN_HEX }] });
+      await connectWallet();
+    } catch (e) {
+      showNote("Could not switch networks: " + (e && e.message ? e.message : e), "error");
+    }
+  }
+  function needWallet() {
+    if (!signer || !account) { showNote("Connect your wallet first (step 1).", "warn"); return false; }
+    return true;
+  }
+  function updateButtons() {
+    el("deploy-token-btn").disabled = !(signer && !tokenAddress);
+    el("deploy-nft-btn").disabled = !(signer && tokenAddress && !nftAddress);
+    el("setminter-btn").disabled = !(signer && tokenAddress && nftAddress);
+    el("verify-btn").disabled = !(isAddr(el("verify-address").value) && isAddr(el("verify-token-address").value));
+    el("activate-btn").disabled = !(signer && isAddr(el("activate-address").value));
+    el("close-btn").disabled = !(signer && isAddr(el("close-address").value));
+  }
+  function fillAddressFields() {
+    var map = [
+      ["nft-token-address", tokenAddress],
+      ["minter-nft-address", nftAddress],
+      ["verify-address", nftAddress],
+      ["verify-token-address", tokenAddress],
+      ["activate-address", nftAddress],
+      ["close-address", nftAddress]
+    ];
+    map.forEach(function (pair) {
+      var input = el(pair[0]);
+      if (input && pair[1]) input.value = pair[1];
+    });
+    var call = el("minter-call");
+    if (call && tokenAddress && nftAddress) {
+      call.textContent = "HanaToken(" + tokenAddress + ").setMinter(" + nftAddress + ", true)";
+    }
+    var vExp = el("v-token-exp");
+    if (vExp && tokenAddress) vExp.textContent = shortAddr(tokenAddress);
+    updateButtons();
+  }
+
+  // ---- Step 3: deploy token ----
+  async function deployToken() {
+    if (!needWallet()) return;
+    var btn = el("deploy-token-btn");
+    btn.disabled = true;
+    el("deploy-token-status").textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var factory = new ethers.ContractFactory(TOKEN_ABI, TOKEN_BYTECODE, signer);
+      var contract = await factory.deploy(OWNER);
+      var tx = contract.deploymentTransaction();
+      el("deploy-token-tx").textContent = tx.hash;
+      el("deploy-token-tx-link").href = BSCSCAN_TX + tx.hash;
+      el("deploy-token-tx-row").classList.remove("hidden");
+      el("deploy-token-status").textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await contract.waitForDeployment();
+      tokenAddress = await contract.getAddress();
+      el("token-address").textContent = tokenAddress;
+      el("token-address-link").href = BSCSCAN + tokenAddress;
+      el("token-verify-link").href = BSCSCAN + tokenAddress + "#code";
+      el("token-deployed-row").classList.remove("hidden");
+      el("deploy-token-status").textContent = "Deployed \u2713";
+      setStep("step-3", "done");
+      setStep("step-4", "active");
+      fillAddressFields();
+      await refreshMinterStatus();
+      showNote("$HANA token deployed at <code class='mono'>" + tokenAddress + "</code>. Next: deploy the NFT (step 4).", "ok");
+    } catch (e) {
+      el("deploy-token-status").textContent = "Deploy failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+
+  // ---- Step 4: deploy NFT ----
+  async function deployNft() {
+    if (!needWallet()) return;
+    var tokenAddr = (el("nft-token-address").value || "").trim();
+    if (!isAddr(tokenAddr)) {
+      showNote("Enter the $HANA token address from step 3 first.", "warn");
+      return;
+    }
+    tokenAddress = tokenAddr;
+    var btn = el("deploy-nft-btn");
+    btn.disabled = true;
+    el("deploy-nft-status").textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var factory = new ethers.ContractFactory(NFT_ABI, NFT_BYTECODE, signer);
+      var contract = await factory.deploy(OWNER, REVENUE, REGISTRY, BASE_URI, DECK_HASH, RARITY_BITMAP, tokenAddr);
+      var tx = contract.deploymentTransaction();
+      el("deploy-nft-tx").textContent = tx.hash;
+      el("deploy-nft-tx-link").href = BSCSCAN_TX + tx.hash;
+      el("deploy-nft-tx-row").classList.remove("hidden");
+      el("deploy-nft-status").textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await contract.waitForDeployment();
+      nftAddress = await contract.getAddress();
+      el("nft-address").textContent = nftAddress;
+      el("nft-address-link").href = BSCSCAN + nftAddress;
+      el("nft-verify-link").href = BSCSCAN + nftAddress + "#code";
+      el("nft-deployed-row").classList.remove("hidden");
+      el("deploy-nft-status").textContent = "Deployed \u2713";
+      setStep("step-4", "done");
+      setStep("step-5", "active");
+      fillAddressFields();
+      await refreshMinterStatus();
+      showNote("NFT deployed at <code class='mono'>" + nftAddress + "</code>. Next: set the minter on the token (step 5).", "ok");
+    } catch (e) {
+      el("deploy-nft-status").textContent = "Deploy failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+
+  // ---- Step 5: setMinter ----
+  async function refreshMinterStatus() {
+    var badge = el("minter-badge");
+    var tokenAddr = tokenAddress || (el("verify-token-address").value || "").trim();
+    var nftAddr = nftAddress || (el("minter-nft-address").value || "").trim();
+    if (!isAddr(tokenAddr) || !isAddr(nftAddr)) {
+      if (badge) { badge.textContent = "Waiting for deploy"; badge.className = "badge2"; }
+      return;
+    }
+    try {
+      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, getPubProvider());
+      var tOwner = await token.owner();
+      var isMinter = await token.minters(nftAddr);
+      el("token-owner-status").textContent = tOwner + (tOwner.toLowerCase() === OWNER.toLowerCase() ? " (My Wallet \u2713)" : " (NOT My Wallet!)");
+      el("minter-now-status").textContent = String(isMinter);
+      if (badge) {
+        badge.textContent = isMinter ? "Minter is set \u2713" : "Minter NOT set yet";
+        badge.className = "badge2 " + (isMinter ? "ok" : "bad");
+      }
+      var isOwner = account && tOwner.toLowerCase() === account.toLowerCase();
+      el("minter-owner-row").classList.toggle("hidden", !isOwner);
+      el("minter-agent-row").classList.toggle("hidden", !!isOwner);
+      if (isMinter) setStep("step-5", "done");
+    } catch (e) {
+      if (badge) { badge.textContent = "Could not read token: " + (e && e.message ? e.message : e); badge.className = "badge2 bad"; }
+    }
+    updateButtons();
+  }
+  async function setMinter() {
+    if (!needWallet()) return;
+    var tokenAddr = tokenAddress;
+    var nftAddr = (el("minter-nft-address").value || "").trim();
+    if (!isAddr(tokenAddr) || !isAddr(nftAddr)) {
+      showNote("Deploy both contracts first (steps 3\u20134).", "warn");
+      return;
+    }
+    var btn = el("setminter-btn");
+    btn.disabled = true;
+    el("setminter-status").textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, signer);
+      var tx = await token.setMinter(nftAddr, true);
+      el("setminter-tx").textContent = tx.hash;
+      el("setminter-tx-link").href = BSCSCAN_TX + tx.hash;
+      el("setminter-tx-row").classList.remove("hidden");
+      el("setminter-status").textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await tx.wait();
+      el("setminter-status").textContent = "Minter set \u2713";
+      setStep("step-5", "done");
+      setStep("step-6", "active");
+      await refreshMinterStatus();
+      showNote("Minter is set. Next: run the on-chain checks (step 6).", "ok");
+    } catch (e) {
+      el("setminter-status").textContent = "setMinter failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+
+  // ---- Step 6: verify on-chain ----
+  function setCheck(id, value, pass) {
+    var v = el(id);
+    var r = el(id + "-r");
+    if (v) v.textContent = value;
+    if (r) {
+      r.textContent = pass === true ? "PASS" : pass === false ? "FAIL" : "-";
+      r.className = pass === true ? "check-pass" : pass === false ? "check-fail" : "";
+    }
+  }
+  async function verifyOnChain() {
+    var nftAddr = (el("verify-address").value || "").trim();
+    var tokenAddr = (el("verify-token-address").value || "").trim();
+    if (!isAddr(nftAddr) || !isAddr(tokenAddr)) {
+      showNote("Enter both deployed contract addresses first.", "warn");
+      return;
+    }
+    var btn = el("verify-btn");
+    btn.disabled = true;
+    el("verify-status").textContent = "Reading from BNB Smart Chain\u2026";
+    el("verify-table").classList.remove("hidden");
+    try {
+      var provider = getPubProvider();
+      var nft = new ethers.Contract(nftAddr, NFT_RW_ABI, provider);
+      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, provider);
+      var dh = await nft.deckHash();
+      setCheck("v-deckhash", dh, dh.toLowerCase() === DECK_HASH.toLowerCase());
+      var ow = await nft.owner();
+      setCheck("v-owner", ow, ow.toLowerCase() === OWNER.toLowerCase());
+      var rev = await nft.revenueWallet();
+      setCheck("v-revenue", rev, rev.toLowerCase() === REVENUE.toLowerCase());
+      var roy = await nft.royaltyInfo(1, 10000);
+      setCheck("v-royalty-addr", roy[0], roy[0].toLowerCase() === REVENUE.toLowerCase());
+      setCheck("v-royalty-amt", roy[1].toString(), roy[1] === 500n);
+      var active = await nft.mintActive();
+      setCheck("v-mintactive", String(active), active === false);
+      var max = await nft.MAX_SUPPLY();
+      setCheck("v-maxsupply", max.toString(), max === 3333n);
+      var ht = await nft.hanaToken();
+      setCheck("v-token", ht, ht.toLowerCase() === tokenAddr.toLowerCase());
+      var bu = await nft.baseURI();
+      setCheck("v-baseuri", bu, bu === BASE_URI);
+      var nm = await nft.name();
+      var sy = await nft.symbol();
+      setCheck("v-name", nm + " / " + sy, nm === "HANAMI BLOOM" && sy === "HANAMI");
+      var tow = await token.owner();
+      setCheck("v-token-owner", tow, tow.toLowerCase() === OWNER.toLowerCase());
+      var tmax = await token.MAX_SUPPLY();
+      setCheck("v-token-max", ethers.formatEther(tmax) + " $HANA", tmax === ethers.parseEther("1000000000"));
+      var tsup = await token.totalSupply();
+      setCheck("v-token-supply", ethers.formatEther(tsup) + " $HANA", tsup === ethers.parseEther("460000000"));
+      var isM = await token.minters(nftAddr);
+      setCheck("v-minter", String(isM), isM === true);
+      el("verify-status").textContent = "Checks finished. Every row must show PASS before activation (step 7). The mintActive row expects false until step 7.";
+      setStep("step-6", "done");
+      setStep("step-7", "active");
+    } catch (e) {
+      el("verify-status").textContent = "Verification failed: " + (e && e.message ? e.message : e);
+    }
+    btn.disabled = false;
+    updateButtons();
+  }
+
+  // ---- Steps 7-8: activate / close ----
+  async function setActive(active) {
+    if (!needWallet()) return;
+    var addr = ((active ? el("activate-address") : el("close-address")).value || "").trim();
+    if (!isAddr(addr)) {
+      showNote("Enter the NFT contract address first.", "warn");
+      return;
+    }
+    var btn = active ? el("activate-btn") : el("close-btn");
+    var status = active ? el("activate-status") : el("close-status");
+    btn.disabled = true;
+    status.textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var nft = new ethers.Contract(addr, NFT_RW_ABI, signer);
+      var tx = await nft.setMintActive(active);
+      var row = active ? el("activate-tx-row") : el("close-tx-row");
+      var link = active ? el("activate-tx-link") : el("close-tx-link");
+      var hashEl = active ? el("activate-tx") : el("close-tx");
+      hashEl.textContent = tx.hash;
+      link.href = BSCSCAN_TX + tx.hash;
+      row.classList.remove("hidden");
+      status.textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await tx.wait();
+      status.textContent = active ? "Minting is ACTIVE \u2713" : "Minting is CLOSED \u2713";
+      if (active) {
+        setStep("step-7", "done");
+        el("done-box").classList.remove("hidden");
+        showNote("Minting is LIVE. Finish the launch checklist below, then update the site config with the real addresses.", "ok");
+      } else {
+        setStep("step-8", "done");
+      }
+    } catch (e) {
+      status.textContent = "Transaction failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+  async function refreshActivationEstimate() {
+    try {
+      var fee = await getPubProvider().getFeeData();
+      lastGasPrice = fee.gasPrice;
+      var c = costText(MEASURED_ACTIVATE_GAS);
+      el("activate-estimate").textContent = "Estimated: ~" + MEASURED_ACTIVATE_GAS.toLocaleString("en-US") + " gas \u2248 " + c.bnb + " (" + c.idr + ") at the live gas price.";
+      var c2 = costText(MEASURED_CLOSE_GAS);
+      el("close-estimate").textContent = "Estimated: ~" + MEASURED_CLOSE_GAS.toLocaleString("en-US") + " gas \u2248 " + c2.bnb + " (" + c2.idr + ") at the live gas price.";
+    } catch (e) {
+      el("activate-estimate").textContent = "Could not read the live gas price. The wallet will show the exact cost.";
+    }
+  }
+
+  // ---- Copy helpers ----
+  function copyText(text, doneMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { showNote(doneMsg, "ok"); }, function () { showNote("Copy failed \u2014 select the text manually.", "warn"); });
+    } else {
+      showNote("Copy is not supported here \u2014 select the text manually.", "warn");
+    }
+  }
+
+  // ---- Wire up ----
+  el("connect-btn").addEventListener("click", connectWallet);
+  el("switch-btn").addEventListener("click", switchChain);
+  el("refresh-estimate-btn").addEventListener("click", refreshEstimates);
+  el("deploy-token-btn").addEventListener("click", deployToken);
+  el("deploy-nft-btn").addEventListener("click", deployNft);
+  el("setminter-btn").addEventListener("click", setMinter);
+  el("refresh-minter-btn").addEventListener("click", refreshMinterStatus);
+  el("verify-btn").addEventListener("click", verifyOnChain);
+  el("refresh-activate-btn").addEventListener("click", refreshActivationEstimate);
+  el("activate-btn").addEventListener("click", function () { setActive(true); });
+  el("refresh-close-btn").addEventListener("click", refreshActivationEstimate);
+  el("close-btn").addEventListener("click", function () { setActive(false); });
+  el("copy-token-btn").addEventListener("click", function () { copyText(tokenAddress, "Token address copied."); });
+  el("copy-nft-btn").addEventListener("click", function () { copyText(nftAddress, "NFT address copied."); });
+  el("copy-minter-call-btn").addEventListener("click", function () { copyText(el("minter-call").textContent, "Call copied."); });
+  ["verify-address", "verify-token-address", "activate-address", "close-address", "nft-token-address", "minter-nft-address"].forEach(function (id) {
+    el(id).addEventListener("input", updateButtons);
+  });
+  if (window.ethereum) {
+    window.ethereum.on("accountsChanged", function () { connectWallet(); });
+    window.ethereum.on("chainChanged", function () { connectWallet(); });
+  }
+  el("artifact-status").textContent = "Loaded (embedded ABI + bytecode, 27-word bitmap) \u2713";
+  setStep("step-1", "active");
+  refreshEstimates();
+  refreshActivationEstimate();
+  updateButtons();
+})();
+</script>
+</body>
+</html>

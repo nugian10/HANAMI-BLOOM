@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy the HANAMI BLOOM Contracts — Owner Tool</title>
+<meta name="description" content="Owner tool to deploy the HANAMI BLOOM NFT + $HANA token contracts to BNB Smart Chain from a browser wallet. Not a public page.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --bg:#0d0910; --bg2:#171019; --card:#1d1420; --card2:#271a28; --line:#3d2b3e;
+    --gold:#f2a6c0; --gold2:#d97a9e; --gold-soft:#ffd7e6; --blue:#7fb2ff; --blue2:#4a7dff;
+    --purple:#b388ff; --green:#7dd87d; --red:#ff7a7a;
+    --text:#f5eef2; --muted:#bfa9b8;
+  }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue)}
+  header{position:sticky;top:0;background:rgba(13,9,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:10}
+  .nav{max-width:960px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
+  .logo{font-family:Georgia,serif;color:var(--gold);text-decoration:none;font-size:18px;font-weight:700}
+  .badge{display:inline-block;background:linear-gradient(135deg,#3a1020,#4a1530);color:var(--gold);border:1px solid var(--gold2);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;letter-spacing:.04em}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  .hero{position:relative;overflow:hidden;text-align:center;padding:48px 20px 32px;background:radial-gradient(ellipse 80% 60% at 50% 0%,#4a1e33 0%,#1d1420 55%,var(--bg) 100%)}
+  .hero h1{font-size:clamp(24px,6vw,40px);margin:.2em 0}
+  .hero .lead{color:var(--muted);max-width:640px;margin:0 auto}
+  .tag{color:var(--gold);font-weight:800;letter-spacing:.08em;font-size:13px}
+  .hidden{display:none !important}
+  .step{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;margin-top:18px;max-width:680px;margin-left:auto;margin-right:auto}
+  .step h2{font-size:18px;margin:0 0 6px;color:var(--gold)}
+  .step.todo{opacity:.55}
+  .step.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,166,192,.25)}
+  .step.blocked{border-color:var(--red)}
+  .step.done{border-color:var(--green)}
+  .step.done h2::after{content:" \2713";color:var(--green)}
+  .btn{display:block;width:100%;min-height:52px;margin:12px 0 0;padding:14px 18px;font-size:17px;font-weight:800;font-family:inherit;color:#1d0a12;background:var(--gold);border:2px solid var(--gold);border-radius:14px;cursor:pointer;text-align:center}
+  .btn:hover:not(:disabled){background:var(--gold-soft)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.primary{background:#b3541e;border-color:#b3541e;color:#F6EFDC}
+  .btn.primary:hover:not(:disabled){background:#96431a}
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn.ghost:hover:not(:disabled){background:var(--card2)}
+  .btn.small{width:auto;display:inline-block;min-height:44px;font-size:15px;padding:10px 16px;margin-top:8px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;overflow-wrap:anywhere;word-break:break-word}
+  .kv{width:100%;border-collapse:collapse;margin:10px 0;background:var(--card2)}
+  .kv th,.kv td{border:1px solid var(--line);padding:10px 12px;text-align:left;font-size:15px;vertical-align:top}
+  .kv th{background:var(--bg2);color:var(--gold);width:34%}
+  .badge2{display:inline-block;font-weight:800;font-size:14px;padding:6px 12px;border-radius:999px;margin:6px 0}
+  .badge2.ok{background:#14331a;color:var(--green)}
+  .badge2.bad{background:#3d1212;color:var(--red)}
+  .note-box{max-width:680px;margin:16px auto 0;padding:14px 16px;border-radius:14px;border:2px solid var(--line);font-size:15px}
+  .note-box.info{background:var(--card2);border-color:var(--blue)}
+  .note-box.warn{background:#2a1a08;border-color:#b3541e}
+  .note-box.error{background:#2a0d0d;border-color:var(--red)}
+  .note-box.ok{background:#0f2a12;border-color:var(--green)}
+  .warn-box{background:#2a0d0d;border:2px solid var(--red);border-radius:14px;padding:14px 16px;margin-top:12px}
+  .status-line{margin:8px 0}
+  .status-line strong{display:block;font-size:15px}
+  .cost{font-size:26px;font-weight:900;margin:4px 0;color:var(--gold)}
+  input.addr{width:100%;min-height:52px;padding:12px 14px;font-size:15px;font-family:inherit;border:2px solid var(--line);border-radius:12px;background:var(--bg2);color:var(--text);box-sizing:border-box}
+  input.addr[readonly]{opacity:.85}
+  .done-box{background:#0f2a12;border:2px solid var(--green);border-radius:16px;padding:18px;margin-top:18px;max-width:680px;margin-left:auto;margin-right:auto}
+  .done-box h2{margin-top:0}
+  .done-box ol{padding-left:22px}
+  .done-box li{margin:8px 0}
+  .check-pass{color:var(--green);font-weight:800}
+  .check-fail{color:var(--red);font-weight:800}
+  details{margin-top:10px}
+  summary{cursor:pointer;color:var(--gold);font-weight:700}
+  footer{text-align:center;color:var(--muted);font-size:14px;padding:32px 20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <span class="logo">花見 BLOOM</span>
+    <span class="badge">OWNER TOOL</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="margin-top:24px">
+    <p class="tag">OWNER ONLY &mdash; NOT A PUBLIC PAGE</p>
+    <h1>Deploy the HANAMI BLOOM Contracts</h1>
+    <p class="lead">Deploy the HANAMI BLOOM NFT contract and the $HANA token to BNB Smart Chain from your own browser wallet. No private key, no seed phrase &mdash; ever. Your wallet signs each transaction after you click.</p>
+  </section>
+
+  <div class="note-box warn" style="margin-top:24px">
+    <strong>Safety first.</strong> This page will <strong>never</strong> ask for your seed phrase or private key.
+    Only connect your browser wallet (MetaMask / Binance Wallet). If any page or person asks for your seed phrase, it is a scam &mdash; stop immediately.
+    Deployment costs real BNB (see the estimate in step 2 before you sign anything).
+  </div>
+
+  <div class="note-box info">
+    <strong>Two contracts, in this order.</strong> Deploy the <strong>$HANA token first</strong> (step 3) &mdash; the NFT contract needs the token address in its constructor.
+    Then deploy <strong>HanamiBloomNFT</strong> (step 4), call <strong>setMinter</strong> on the token (step 5), verify on-chain (step 6), and activate minting (step 7).
+    The deployer wallet only pays gas &mdash; the <strong>owner of both contracts is Bryan's My Wallet</strong>
+    (<code class="mono">0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097</code>), set as a constructor argument,
+    while mint payments and the 5% royalty go to the Binance Agentic Wallet (revenue).
+    Steps 5 and 7 are owner-only: connect My Wallet to run them here.
+    Minting starts <strong>OFF</strong>. Agent-only via SPACE ID Agent ID, enforced on-chain.
+  </div>
+
+  <div class="note-box info">
+    <strong>What the contracts do.</strong> 3,333 ukiyo-e sakura NFTs (Common Wildflower 2,000 / Rare Sakura 1,000 / Epic Moonflower 300 / Legendary Eternal Bloom 33),
+    drawn from a deterministic deck (deck hash committed on-chain, full deck published off-chain). No free mint, no per-wallet limit.
+    Each paid mint also mints a $HANA bonus to the minter. $HANA: max supply 1,000,000,000 &mdash; 460,000,000 treasury pre-minted to the owner at deploy, 540,000,000 bonus pool mintable only by the NFT contract.
+    The mint price is read from the contract at mint time &mdash; it is never written on this page or the site.
+  </div>
+
+  <div id="note" class="note-box info hidden" role="status"></div>
+
+  <!-- Step 1 -->
+  <section class="step todo" id="step-1">
+    <h2>Step 1 &mdash; Connect your wallet</h2>
+    <p>Connect My Wallet (the owner wallet) on <strong>BNB Smart Chain (chain 56)</strong>. This wallet pays gas and becomes the owner of both contracts. If you are on another network, the page will offer to switch.</p>
+    <p class="status-line"><strong>Wallet:</strong> <span id="wallet-status">Not connected.</span></p>
+    <p class="status-line hidden" id="wallet-address-row"><strong>Address:</strong> <code class="mono" id="wallet-address"></code></p>
+    <p class="status-line"><strong>Network:</strong> <span id="chain-status">&mdash;</span></p>
+    <p class="status-line"><strong>Contract files:</strong> <span id="artifact-status">Loading&hellip;</span></p>
+    <button class="btn" id="connect-btn" type="button">Connect Wallet</button>
+    <div id="switch-row" class="hidden">
+      <button class="btn ghost" id="switch-btn" type="button">Switch to BNB Smart Chain</button>
+    </div>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="step todo" id="step-2">
+    <h2>Step 2 &mdash; What will be deployed</h2>
+    <p>These constructor values are locked in this page and match the contract source. Check them against the contract source before deploying. Nothing here is editable.</p>
+    <table class="kv">
+      <tr><th>$HANA token &mdash; initialOwner</th><td><code class="mono">0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097</code><br>Bryan's My Wallet (owner; receives the 460,000,000 $HANA treasury at deploy)</td></tr>
+      <tr><th>NFT &mdash; 1. Owner (initialOwner)</th><td><code class="mono">0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097</code><br>Bryan's My Wallet (owner of the NFT contract)</td></tr>
+      <tr><th>NFT &mdash; 2. Revenue wallet</th><td><code class="mono">0x89c37649Ba3BAA9E1ce028612b7DE4e9c3a947B7</code><br>Binance Agentic Wallet &mdash; mint payments go here directly, and the 5% royalty goes here</td></tr>
+      <tr><th>NFT &mdash; 3. Agent ID registry</th><td><code class="mono">0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F</code><br>SPACE ID (.ai Agent ID) &mdash; only Agent ID holders can mint</td></tr>
+      <tr><th>NFT &mdash; 4. Base URI</th><td><code class="mono">https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/</code><br>Metadata folder (tokenURI = baseURI + tokenId + &ldquo;.json&rdquo;)</td></tr>
+      <tr><th>NFT &mdash; 5. Deck hash</th><td><code class="mono">0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28</code><br>keccak256 of the 3,333-entry deck, verified off-chain</td></tr>
+      <tr><th>NFT &mdash; 6. Rarity bitmap</th><td>27 words (2 bits per token) built from the published deck &mdash; embedded in this page, lets the contract know each token's rarity</td></tr>
+      <tr><th>NFT &mdash; 7. $HANA token</th><td>Address of the token deployed in step 3 (filled in automatically)</td></tr>
+      <tr><th>Supply / rules</th><td>3,333 NFTs (Common 2,000, Rare 1,000, Epic 300, Legendary 33). No free mint, no per-wallet limit. Mint bonus per paid mint is paid in $HANA. Minting starts OFF.</td></tr>
+    </table>
+    <p class="status-line"><strong>Live gas price:</strong> <span id="gas-price">&mdash;</span></p>
+    <p class="status-line"><strong>Estimated gas (measured locally):</strong> <span id="gas-estimate">&mdash;</span></p>
+    <p class="cost" id="cost-bnb">&mdash; BNB</p>
+    <p class="status-line"><span id="cost-idr">&mdash;</span></p>
+    <p class="note" id="estimate-status">Reading the live gas price&hellip;</p>
+    <button class="btn ghost" id="refresh-estimate-btn" type="button">Refresh estimate</button>
+  </section>
+
+  <!-- Step 3 -->
+  <section class="step todo" id="step-3">
+    <h2>Step 3 &mdash; Deploy the $HANA token</h2>
+    <p>One transaction, sent from the connected wallet. Your wallet will show the exact cost &mdash; check it matches the estimate above before you confirm. The owner (My Wallet) receives the 460,000,000 $HANA treasury in this same transaction. No minter is set yet &mdash; that is step 5.</p>
+    <button class="btn primary" id="deploy-token-btn" type="button" disabled>DEPLOY $HANA TOKEN</button>
+    <p class="status-line" id="deploy-token-status">Waiting for steps 1&ndash;2.</p>
+    <p class="status-line hidden" id="deploy-token-tx-row"><strong>Transaction:</strong> <a id="deploy-token-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="deploy-token-tx"></code></a></p>
+    <div id="token-deployed-row" class="hidden">
+      <p class="status-line"><strong>$HANA token address:</strong><br><code class="mono" id="token-address"></code>
+        <button class="btn small ghost" id="copy-token-btn" type="button">Copy</button></p>
+      <p><a id="token-address-link" href="#" target="_blank" rel="noopener">View contract on BscScan</a> &middot;
+         <a id="token-verify-link" href="#" target="_blank" rel="noopener">Verify source on BscScan</a></p>
+      <p class="status-line">Save this address &mdash; step 4 needs it, and the site config needs it later. Source verification: compiler 0.8.24, optimizer runs 200, EVM cancun, license MIT.</p>
+    </div>
+  </section>
+
+  <!-- Step 4 -->
+  <section class="step todo" id="step-4">
+    <h2>Step 4 &mdash; Deploy the HanamiBloomNFT</h2>
+    <p>One transaction, sent from the connected wallet. Your wallet will show the exact cost &mdash; check it matches the estimate above before you confirm. Owner is set to My Wallet. Minting stays <strong>off</strong> after deploy.</p>
+    <label for="nft-token-address"><strong>$HANA token address (from step 3)</strong></label>
+    <input class="addr" id="nft-token-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 3)">
+    <details>
+      <summary>Constructor arguments used (read-only)</summary>
+      <table class="kv">
+        <tr><th>initialOwner</th><td><code class="mono">0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097</code></td></tr>
+        <tr><th>revenueWallet</th><td><code class="mono">0x89c37649Ba3BAA9E1ce028612b7DE4e9c3a947B7</code></td></tr>
+        <tr><th>agentIdRegistry</th><td><code class="mono">0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F</code></td></tr>
+        <tr><th>baseURI</th><td><code class="mono">https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/</code></td></tr>
+        <tr><th>deckHash</th><td><code class="mono">0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28</code></td></tr>
+        <tr><th>rarityBitmap</th><td>27 words, embedded in this page (see step 2)</td></tr>
+        <tr><th>hanaToken</th><td>Address from step 3</td></tr>
+      </table>
+    </details>
+    <button class="btn primary" id="deploy-nft-btn" type="button" disabled>DEPLOY HANAMI BLOOM NFT</button>
+    <p class="status-line" id="deploy-nft-status">Waiting for step 3.</p>
+    <p class="status-line hidden" id="deploy-nft-tx-row"><strong>Transaction:</strong> <a id="deploy-nft-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="deploy-nft-tx"></code></a></p>
+    <div id="nft-deployed-row" class="hidden">
+      <p class="status-line"><strong>NFT contract address:</strong><br><code class="mono" id="nft-address"></code>
+        <button class="btn small ghost" id="copy-nft-btn" type="button">Copy</button></p>
+      <p><a id="nft-address-link" href="#" target="_blank" rel="noopener">View contract on BscScan</a> &middot;
+         <a id="nft-verify-link" href="#" target="_blank" rel="noopener">Verify source on BscScan</a></p>
+      <p class="status-line">Save this address &mdash; steps 5&ndash;7 need it, and the site config needs it later. Source verification: compiler 0.8.24, optimizer runs 200, EVM cancun, license MIT.</p>
+    </div>
+  </section>
+
+  <!-- Step 5 -->
+  <section class="step todo" id="step-5">
+    <h2>Step 5 &mdash; Set minter on the $HANA token (owner only)</h2>
+    <p>The NFT contract must be allowed to mint $HANA (the per-mint bonus). This is the owner-only call <code>setMinter(nftAddress, true)</code> on the token deployed in step 3. Without it, every mint reverts.</p>
+    <p><span class="badge2" id="minter-badge">Not checked yet</span></p>
+    <p class="status-line"><strong>Token owner (must be My Wallet):</strong> <span id="token-owner-status">&mdash;</span></p>
+    <p class="status-line"><strong>minters(NFT) now:</strong> <span id="minter-now-status">&mdash;</span></p>
+    <label for="minter-nft-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="minter-nft-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <div id="minter-owner-row" class="hidden">
+      <p class="status-line">Connected wallet is the owner (My Wallet). You can run this step here.</p>
+      <button class="btn primary" id="setminter-btn" type="button" disabled>SET MINTER (NFT)</button>
+      <p class="status-line" id="setminter-status">Waiting for deploy.</p>
+      <p class="status-line hidden" id="setminter-tx-row"><strong>Transaction:</strong> <a id="setminter-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="setminter-tx"></code></a></p>
+    </div>
+    <div id="minter-agent-row" class="hidden">
+      <p class="status-line">The connected wallet is <strong>not</strong> the owner, so this step cannot be signed here. Connect My Wallet (the owner) to run it here, or run this call from My Wallet:</p>
+      <p class="status-line"><code class="mono" id="minter-call">HanaToken(tokenAddress).setMinter(nftAddress, true)</code></p>
+      <button class="btn ghost small" id="copy-minter-call-btn" type="button">Copy the call</button>
+      <p class="status-line" id="minter-manual-status">After My Wallet confirms the transaction, check <code>minters(nftAddress)</code> on the token &mdash; it must read <code>true</code>.</p>
+    </div>
+    <button class="btn ghost small" id="refresh-minter-btn" type="button">Refresh minter status</button>
+  </section>
+
+  <!-- Step 6 -->
+  <section class="step todo" id="step-6">
+    <h2>Step 6 &mdash; Verify on-chain (read-only)</h2>
+    <p>Reads both contracts' state straight from BNB Smart Chain and checks it against the expected values. No transaction, no gas, nothing is signed.</p>
+    <label for="verify-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="verify-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <label for="verify-token-address"><strong>$HANA token address</strong></label>
+    <input class="addr" id="verify-token-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 3)">
+    <button class="btn" id="verify-btn" type="button" disabled>RUN ON-CHAIN CHECKS</button>
+    <table class="kv hidden" id="verify-table">
+      <tr><th>Check</th><th>On-chain value</th><th>Expected</th><th>Result</th></tr>
+      <tr><td>NFT deckHash()</td><td><code class="mono" id="v-deckhash">-</code></td><td><code class="mono">0x8fb75680…1c28</code></td><td id="v-deckhash-r">-</td></tr>
+      <tr><td>NFT owner()</td><td><code class="mono" id="v-owner">-</code></td><td><code class="mono">0x0262&hellip;4097</code> (My Wallet)</td><td id="v-owner-r">-</td></tr>
+      <tr><td>NFT revenueWallet()</td><td><code class="mono" id="v-revenue">-</code></td><td><code class="mono">0x89c3&hellip;47B7</code> (Agentic)</td><td id="v-revenue-r">-</td></tr>
+      <tr><td>NFT royaltyInfo(1, 10000) receiver</td><td><code class="mono" id="v-royalty-addr">-</code></td><td><code class="mono">0x89c3&hellip;47B7</code> (Agentic)</td><td id="v-royalty-addr-r">-</td></tr>
+      <tr><td>NFT royaltyInfo(1, 10000) amount</td><td><code class="mono" id="v-royalty-amt">-</code></td><td>500 (5% of 10000)</td><td id="v-royalty-amt-r">-</td></tr>
+      <tr><td>NFT mintActive()</td><td><code class="mono" id="v-mintactive">-</code></td><td>false (before step 7)</td><td id="v-mintactive-r">-</td></tr>
+      <tr><td>NFT MAX_SUPPLY</td><td><code class="mono" id="v-maxsupply">-</code></td><td>3333</td><td id="v-maxsupply-r">-</td></tr>
+      <tr><td>NFT hanaToken()</td><td><code class="mono" id="v-token">-</code></td><td><code class="mono" id="v-token-exp">-</code></td><td id="v-token-r">-</td></tr>
+      <tr><td>NFT baseURI()</td><td><code class="mono" id="v-baseuri">-</code></td><td><code class="mono">https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/</code></td><td id="v-baseuri-r">-</td></tr>
+      <tr><td>NFT name() / symbol()</td><td><code class="mono" id="v-name">-</code></td><td>HANAMI BLOOM / HANAMI</td><td id="v-name-r">-</td></tr>
+      <tr><td>Token owner()</td><td><code class="mono" id="v-token-owner">-</code></td><td><code class="mono">0x0262&hellip;4097</code> (My Wallet)</td><td id="v-token-owner-r">-</td></tr>
+      <tr><td>Token MAX_SUPPLY</td><td><code class="mono" id="v-token-max">-</code></td><td>1,000,000,000 $HANA</td><td id="v-token-max-r">-</td></tr>
+      <tr><td>Token totalSupply()</td><td><code class="mono" id="v-token-supply">-</code></td><td>460,000,000 $HANA (treasury)</td><td id="v-token-supply-r">-</td></tr>
+      <tr><td>Token minters(NFT)</td><td><code class="mono" id="v-minter">-</code></td><td>true (after step 5)</td><td id="v-minter-r">-</td></tr>
+    </table>
+    <p class="status-line" id="verify-status">Enter the deployed contract addresses first.</p>
+  </section>
+
+  <!-- Step 7 -->
+  <section class="step todo" id="step-7">
+    <h2>Step 7 &mdash; Activate minting (owner only)</h2>
+    <p>Turn minting on with <code>setMintActive(true)</code>. One small transaction from the owner wallet.</p>
+    <label for="activate-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="activate-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <p class="status-line" id="activate-estimate">Enter the deployed contract address first.</p>
+    <button class="btn ghost small" id="refresh-activate-btn" type="button">Refresh activation estimate</button>
+    <button class="btn primary" id="activate-btn" type="button" disabled>ACTIVATE MINT</button>
+    <p class="status-line" id="activate-status">Waiting for deploy.</p>
+    <p class="status-line hidden" id="activate-tx-row"><strong>Transaction:</strong> <a id="activate-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="activate-tx"></code></a></p>
+  </section>
+
+  <!-- Step 8 -->
+  <section class="step todo" id="step-8">
+    <h2>Step 8 &mdash; Close minting (owner only)</h2>
+    <p>This stops all new mints with <code>setMintActive(false)</code>. NFTs already minted are unaffected, and the owner can re-open minting later with <code>setMintActive(true)</code>. One small transaction from the owner wallet.</p>
+    <label for="close-address"><strong>NFT contract address</strong></label>
+    <input class="addr" id="close-address" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="0x&hellip; (filled in automatically after step 4)">
+    <p class="status-line" id="close-estimate">Connect your wallet first.</p>
+    <button class="btn ghost small" id="refresh-close-btn" type="button">Refresh close estimate</button>
+    <button class="btn primary" id="close-btn" type="button" disabled>CLOSE MINT</button>
+    <p class="status-line" id="close-status">Waiting for wallet.</p>
+    <p class="status-line hidden" id="close-tx-row"><strong>Transaction:</strong> <a id="close-tx-link" href="#" target="_blank" rel="noopener"><code class="mono" id="close-tx"></code></a></p>
+  </section>
+
+  <div id="done-box" class="done-box hidden">
+    <h2>Launch checklist</h2>
+    <ol>
+      <li><strong>Verify the source on BscScan</strong> (both contracts) &mdash; open each contract on BscScan &rarr; Contract &rarr; Verify and Publish, compiler 0.8.24, optimizer runs 200, EVM cancun, license MIT.</li>
+      <li><strong>Confirm setMinter</strong> &mdash; on the $HANA token, <code>minters(nftAddress)</code> reads <code>true</code>.</li>
+      <li><strong>Confirm the on-chain checks</strong> &mdash; all rows in step 6 must show PASS.</li>
+      <li><strong>Update the site</strong> &mdash; put the real NFT + token addresses in <code>site/config.js</code>, <code>agent-skill.md</code> and <code>llms.txt</code>, then redeploy the site.</li>
+      <li><strong>Announce the launch</strong> on X.</li>
+    </ol>
+  </div>
+
+  <footer>
+    <p>HANAMI BLOOM &mdash; 花見 &mdash; owner deploy tool for the NFT + $HANA contracts. Not a public page. Contract source is verifiable on BscScan; it is not an independent audit.</p>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+// HANAMI BLOOM — browser-wallet deploy page logic (owner tool).
+// Uses ONLY the connected browser wallet (MetaMask / Binance Wallet) to sign.
+// This page NEVER asks for, accepts, or handles a seed phrase or private key.
+// Every transaction needs the user's explicit click + wallet confirmation.
+//
+// Deploys TWO contracts, in order: (1) HanaToken, (2) HanamiBloomNFT
+// (the NFT needs the token address in its constructor). After deploy,
+// the owner must call setMinter(nft, true) on the token (step 5),
+// or every mint reverts. Requires ethers v6 (UMD build) from CDN.
+// ABI + bytecode + the 27-word rarity bitmap are embedded below, so this
+// single file works standalone (no artifact fetch, no site files needed).
+(function () {
+  "use strict";
+
+  // ---- Locked deployment parameters (verified against
+  // contracts/HanamiBloomNFT.sol, contracts/HanaToken.sol,
+  // collection/collection.json and collection/rarity-bitmap.json
+  // — do not change here) ----
+  var OWNER = "0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097"; // Bryan's My Wallet (owner of both contracts)
+  var REVENUE = "0x89c37649Ba3BAA9E1ce028612b7DE4e9c3a947B7"; // Binance Agentic Wallet (revenue + royalty)
+  var REGISTRY = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F"; // SPACE ID Agent ID registry
+  var BASE_URI = "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/";
+  var DECK_HASH = "0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28";
+  var BSC_CHAIN_ID = 56n;
+  var BSC_CHAIN_HEX = "0x38";
+  var MEASURED_TOKEN_GAS = 818208; // hardhat measurement (Nov 2026, scripts/measure-deploy-gas.js)
+  var MEASURED_NFT_GAS = 3072431; // hardhat measurement
+  var MEASURED_SETMINTER_GAS = 47832; // hardhat measurement
+  var MEASURED_ACTIVATE_GAS = 29854; // hardhat measurement for setMintActive(true)
+  var MEASURED_CLOSE_GAS = 29854; // same setMintActive call as activate
+  var BNB_IDR_REF = 12401357; // reference rate only, for the estimate display (CoinGecko, 10 Nov 2026)
+
+  // ---- Embedded contract data (from the compiled artifacts) ----
+  var TOKEN_ABI = [{"inputs":[{"internalType":"address","name":"initialOwner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"uint256","name":"increasedSupply","type":"uint256"},{"internalType":"uint256","name":"cap","type":"uint256"}],"name":"ERC20ExceededCap","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"uint256","name":"cap","type":"uint256"}],"name":"ERC20InvalidCap","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"inputs":[],"name":"NotMinter","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"minter","type":"address"},{"indexed":false,"internalType":"bool","name":"allowed","type":"bool"}],"name":"MinterSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[],"name":"BONUS_POOL","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"TREASURY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burnFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"cap","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"minters","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"minter","type":"address"},{"internalType":"bool","name":"allowed","type":"bool"}],"name":"setMinter","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+  var TOKEN_BYTECODE = "0x60a060405234801562000010575f80fd5b506040516200108d3803806200108d833981016040819052620000339162000357565b806b033b2e3c9fd0803ce80000006040518060400160405280600481526020016348414e4160e01b8152506040518060400160405280600481526020016348414e4160e01b81525081600390816200008c91906200041c565b5060046200009b82826200041c565b505050805f03620000c65760405163392e1e2760e01b81525f60048201526024015b60405180910390fd5b6080526001600160a01b038116620000f457604051631e4fbdf760e01b81525f6004820152602401620000bd565b620000ff816200011f565b5062000118816b017c80c9f7983afd4c00000062000170565b506200050e565b600580546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0905f90a35050565b6001600160a01b0382166200019b5760405163ec442f0560e01b81525f6004820152602401620000bd565b620001a85f8383620001ac565b5050565b620001b9838383620001be565b505050565b620001cb83838362000228565b6001600160a01b038316620001b9575f620001e560805190565b90505f620001f260025490565b905081811115620002215760405163279e7e1560e21b81526004810182905260248101839052604401620000bd565b5050505050565b6001600160a01b03831662000256578060025f8282546200024a9190620004e8565b90915550620002c89050565b6001600160a01b0383165f9081526020819052604090205481811015620002aa5760405163391434e360e21b81526001600160a01b03851660048201526024810182905260448101839052606401620000bd565b6001600160a01b0384165f9081526020819052604090209082900390555b6001600160a01b038216620002e65760028054829003905562000304565b6001600160a01b0382165f9081526020819052604090208054820190555b816001600160a01b0316836001600160a01b03167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef836040516200034a91815260200190565b60405180910390a3505050565b5f6020828403121562000368575f80fd5b81516001600160a01b03811681146200037f575f80fd5b9392505050565b634e487b7160e01b5f52604160045260245ffd5b600181811c90821680620003af57607f821691505b602082108103620003ce57634e487b7160e01b5f52602260045260245ffd5b50919050565b601f821115620001b957805f5260205f20601f840160051c81016020851015620003fb5750805b601f840160051c820191505b8181101562000221575f815560010162000407565b81516001600160401b0381111562000438576200043862000386565b62000450816200044984546200039a565b84620003d4565b602080601f83116001811462000486575f84156200046e5750858301515b5f19600386901b1c1916600185901b178555620004e0565b5f85815260208120601f198616915b82811015620004b65788860151825594840194600190910190840162000495565b5085821015620004d457878501515f19600388901b60f8161c191681555b505060018460011b0185555b505050505050565b808201808211156200050857634e487b7160e01b5f52601160045260245ffd5b92915050565b608051610b5f6200052e5f395f81816101d301526107f10152610b5f5ff3fe608060405234801561000f575f80fd5b5060043610610132575f3560e01c80634d2a44a8116100b457806395d89b411161007957806395d89b4114610290578063a9059cbb14610298578063cf456ae7146102ab578063dd62ed3e146102be578063f2fde38b146102f6578063f46eccc414610309575f80fd5b80634d2a44a81461021f57806370a0823114610232578063715018a61461025a57806379cc6790146102625780638da5cb5b14610275575f80fd5b8063313ce567116100fa578063313ce567146101af57806332cb6b0c146101be578063355274ea146101d157806340c10f19146101f757806342966c681461020c575f80fd5b806306fdde0314610136578063095ea7b31461015457806318160ddd1461017757806323b872dd146101895780632d2c55651461019c575b5f80fd5b61013e61032b565b60405161014b9190610969565b60405180910390f35b6101676101623660046109d0565b6103bb565b604051901515815260200161014b565b6002545b60405190815260200161014b565b6101676101973660046109f8565b6103d4565b61017b6b017c80c9f7983afd4c00000081565b6040516012815260200161014b565b61017b6b033b2e3c9fd0803ce800000081565b7f000000000000000000000000000000000000000000000000000000000000000061017b565b61020a6102053660046109d0565b6103f7565b005b61020a61021a366004610a31565b610434565b61017b6b01bead72a838453f9c00000081565b61017b610240366004610a48565b6001600160a01b03165f9081526020819052604090205490565b61020a610441565b61020a6102703660046109d0565b610454565b6005546040516001600160a01b03909116815260200161014b565b61013e610469565b6101676102a63660046109d0565b610478565b61020a6102b9366004610a68565b610485565b61017b6102cc366004610aa1565b6001600160a01b039182165f90815260016020908152604080832093909416825291909152205490565b61020a610304366004610a48565b6104eb565b610167610317366004610a48565b60066020525f908152604090205460ff1681565b60606003805461033a90610ad2565b80601f016020809104026020016040519081016040528092919081815260200182805461036690610ad2565b80156103b15780601f10610388576101008083540402835291602001916103b1565b820191905f5260205f20905b81548152906001019060200180831161039457829003601f168201915b5050505050905090565b5f336103c881858561052a565b60019150505b92915050565b5f336103e185828561053c565b6103ec8585856105b8565b506001949350505050565b335f9081526006602052604090205460ff1661042657604051633e34a41b60e21b815260040160405180910390fd5b6104308282610615565b5050565b61043e3382610649565b50565b61044961067d565b6104525f6106aa565b565b61045f82338361053c565b6104308282610649565b60606004805461033a90610ad2565b5f336103c88185856105b8565b61048d61067d565b6001600160a01b0382165f81815260066020908152604091829020805460ff191685151590811790915591519182527f583b0aa0e528532caf4b907c11d7a8158a122fe2a6fb80cd9b09776ebea8d92d910160405180910390a25050565b6104f361067d565b6001600160a01b03811661052157604051631e4fbdf760e01b81525f60048201526024015b60405180910390fd5b61043e816106aa565b61053783838360016106fb565b505050565b6001600160a01b038381165f908152600160209081526040808320938616835292905220545f198110156105b257818110156105a457604051637dc7a0d960e11b81526001600160a01b03841660048201526024810182905260448101839052606401610518565b6105b284848484035f6106fb565b50505050565b6001600160a01b0383166105e157604051634b637e8f60e11b81525f6004820152602401610518565b6001600160a01b03821661060a5760405163ec442f0560e01b81525f6004820152602401610518565b6105378383836107cd565b6001600160a01b03821661063e5760405163ec442f0560e01b81525f6004820152602401610518565b6104305f83836107cd565b6001600160a01b03821661067257604051634b637e8f60e11b81525f6004820152602401610518565b610430825f836107cd565b6005546001600160a01b031633146104525760405163118cdaa760e01b8152336004820152602401610518565b600580546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0905f90a35050565b6001600160a01b0384166107245760405163e602df0560e01b81525f6004820152602401610518565b6001600160a01b03831661074d57604051634a1406b160e11b81525f6004820152602401610518565b6001600160a01b038085165f90815260016020908152604080832093871683529290522082905580156105b257826001600160a01b0316846001600160a01b03167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040516107bf91815260200190565b60405180910390a350505050565b6105378383836107de838383610843565b6001600160a01b038316610537576002547f0000000000000000000000000000000000000000000000000000000000000000908181111561083c5760405163279e7e1560e21b81526004810182905260248101839052604401610518565b5050505050565b6001600160a01b03831661086d578060025f8282546108629190610b0a565b909155506108dd9050565b6001600160a01b0383165f90815260208190526040902054818110156108bf5760405163391434e360e21b81526001600160a01b03851660048201526024810182905260448101839052606401610518565b6001600160a01b0384165f9081526020819052604090209082900390555b6001600160a01b0382166108f957600280548290039055610917565b6001600160a01b0382165f9081526020819052604090208054820190555b816001600160a01b0316836001600160a01b03167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8360405161095c91815260200190565b60405180910390a3505050565b5f602080835283518060208501525f5b8181101561099557858101830151858201604001528201610979565b505f604082860101526040601f19601f8301168501019250505092915050565b80356001600160a01b03811681146109cb575f80fd5b919050565b5f80604083850312156109e1575f80fd5b6109ea836109b5565b946020939093013593505050565b5f805f60608486031215610a0a575f80fd5b610a13846109b5565b9250610a21602085016109b5565b9150604084013590509250925092565b5f60208284031215610a41575f80fd5b5035919050565b5f60208284031215610a58575f80fd5b610a61826109b5565b9392505050565b5f8060408385031215610a79575f80fd5b610a82836109b5565b915060208301358015158114610a96575f80fd5b809150509250929050565b5f8060408385031215610ab2575f80fd5b610abb836109b5565b9150610ac9602084016109b5565b90509250929050565b600181811c90821680610ae657607f821691505b602082108103610b0457634e487b7160e01b5f52602260045260245ffd5b50919050565b808201808211156103ce57634e487b7160e01b5f52601160045260245ffdfea26469706673582212204603fd4171f76982a0af02affcffe10cacd2d1a9d93e8fc59b4b94108828aa9a64736f6c63430008180033";
+  var NFT_ABI = [{"inputs":[{"internalType":"address","name":"initialOwner","type":"address"},{"internalType":"address","name":"revenueWallet_","type":"address"},{"internalType":"address","name":"agentIdRegistry_","type":"address"},{"internalType":"string","name":"baseURI_","type":"string"},{"internalType":"bytes32","name":"deckHash_","type":"bytes32"},{"internalType":"uint256[27]","name":"rarityBitmap_","type":"uint256[27]"},{"internalType":"address","name":"hanaToken_","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"uint256","name":"numerator","type":"uint256"},{"internalType":"uint256","name":"denominator","type":"uint256"}],"name":"ERC2981InvalidDefaultRoyalty","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC2981InvalidDefaultRoyaltyReceiver","type":"error"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"numerator","type":"uint256"},{"internalType":"uint256","name":"denominator","type":"uint256"}],"name":"ERC2981InvalidTokenRoyalty","type":"error"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC2981InvalidTokenRoyaltyReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"address","name":"owner","type":"address"}],"name":"ERC721IncorrectOwner","type":"error"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ERC721InsufficientApproval","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC721InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"operator","type":"address"}],"name":"ERC721InvalidOperator","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"ERC721InvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC721InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC721InvalidSender","type":"error"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ERC721NonexistentToken","type":"error"},{"inputs":[],"name":"ExceedsMaxSupply","type":"error"},{"inputs":[{"internalType":"uint256","name":"expected","type":"uint256"},{"internalType":"uint256","name":"received","type":"uint256"}],"name":"IncorrectPayment","type":"error"},{"inputs":[],"name":"InvalidAddress","type":"error"},{"inputs":[],"name":"MintInactive","type":"error"},{"inputs":[],"name":"NoAgentId","type":"error"},{"inputs":[],"name":"NoContracts","type":"error"},{"inputs":[],"name":"NoDrawableToken","type":"error"},{"inputs":[],"name":"NoFunds","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"inputs":[],"name":"PaymentForwardFailed","type":"error"},{"inputs":[],"name":"ReentrancyGuardReentrantCall","type":"error"},{"inputs":[],"name":"RefundFailed","type":"error"},{"inputs":[],"name":"SoldOut","type":"error"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bool","name":"required","type":"bool"}],"name":"AgentIdCheckChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"agentIdRegistry","type":"address"}],"name":"AgentIdRegistryUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"baseURI","type":"string"}],"name":"BaseURIUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"deckHash","type":"bytes32"}],"name":"DeckCommitted","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bool","name":"active","type":"bool"}],"name":"MintActiveChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"minter","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"},{"indexed":false,"internalType":"uint8","name":"rarity","type":"uint8"},{"indexed":false,"internalType":"bytes32","name":"seed","type":"bytes32"}],"name":"Minted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"revenueWallet","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawn","type":"event"},{"inputs":[],"name":"DEFAULT_AGENT_ID_REGISTRY","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MINT_BONUS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MINT_PRICE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"RARITY_COMMON","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"RARITY_EPIC","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"RARITY_LEGENDARY","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"RARITY_RARE","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"ROYALTY_BPS","outputs":[{"internalType":"uint96","name":"","type":"uint96"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"agentIdCheckRequired","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"agentIdRegistry","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"baseURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"commonsRemaining","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deckDrawn","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deckHash","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deckRemaining","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"epicsRemaining","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"hanaToken","outputs":[{"internalType":"contract HanaToken","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"wallet","type":"address"}],"name":"holdsAgentId","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"legendariesRemaining","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"mint","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"mintActive","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"mintCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"raresRemaining","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"rarityOf","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"revenueWallet","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"uint256","name":"salePrice","type":"uint256"}],"name":"royaltyInfo","outputs":[{"internalType":"address","name":"receiver","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"required","type":"bool"}],"name":"setAgentIdCheckRequired","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"agentIdRegistry_","type":"address"}],"name":"setAgentIdRegistry","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"baseURI_","type":"string"}],"name":"setBaseURI","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"active","type":"bool"}],"name":"setMintActive","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tokenSeed","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+  var NFT_BYTECODE = "0x60e0604052600a805460ff60a81b1916600160a81b179055610d056027556107d0602a556103e8602b5561012c602c556021602d5534801562000040575f80fd5b5060405162002bb938038062002bb9833981016040819052620000639162000412565b866040518060400160405280600c81526020016b48414e414d4920424c4f4f4d60a01b8152506040518060400160405280600681526020016548414e414d4960d01b8152508160029081620000b99190620005b3565b506003620000c88282620005b3565b5050506001600160a01b038116620000fa57604051631e4fbdf760e01b81525f60048201526024015b60405180910390fd5b620001058162000248565b5060016009556001600160a01b03871615806200012957506001600160a01b038616155b806200013c57506001600160a01b038516155b806200014f57506001600160a01b038116155b156200016e5760405163e6c4247b60e01b815260040160405180910390fd5b6001600160a01b03808716608052600a805491871661010002610100600160a81b0319909216919091179055600b620001a88582620005b3565b5060a08390526001600160a01b03811660c0525f5b601b81101562000202578281601b8110620001dc57620001dc6200067f565b6020020151600c82601b8110620001f757620001f76200067f565b0155600101620001bd565b5062000211866101f462000299565b60405183907f2a48e0b5252272f86804b1cb1a99946e0af85ba0e1618ddddf391d44f6725dda905f90a25050505050505062000693565b600880546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0905f90a35050565b6127106001600160601b038216811015620002da57604051636f483d0960e01b81526001600160601b038316600482015260248101829052604401620000f1565b6001600160a01b0383166200030557604051635b6cc80560e11b81525f6004820152602401620000f1565b50604080518082019091526001600160a01b039092168083526001600160601b039091166020909201829052600160a01b909102175f55565b80516001600160a01b038116811462000355575f80fd5b919050565b634e487b7160e01b5f52604160045260245ffd5b604051601f8201601f191681016001600160401b03811182821017156200039957620003996200035a565b604052919050565b5f82601f830112620003b1575f80fd5b6040516103608082016001600160401b0381118382101715620003d857620003d86200035a565b60405283018185821115620003eb575f80fd5b845b8281101562000407578051825260209182019101620003ed565b509195945050505050565b5f805f805f805f610420888a0312156200042a575f80fd5b62000435886200033e565b9650602062000446818a016200033e565b96506200045660408a016200033e565b60608a01519096506001600160401b038082111562000473575f80fd5b818b0191508b601f83011262000487575f80fd5b8151818111156200049c576200049c6200035a565b620004b0601f8201601f191685016200036e565b91508082528c84828501011115620004c6575f80fd5b5f5b81811015620004e5578381018501518382018601528401620004c8565b505f84828401015250809650505050608088015192506200050a8960a08a01620003a1565b91506200051b61040089016200033e565b905092959891949750929550565b600181811c908216806200053e57607f821691505b6020821081036200055d57634e487b7160e01b5f52602260045260245ffd5b50919050565b601f821115620005ae57805f5260205f20601f840160051c810160208510156200058a5750805b601f840160051c820191505b81811015620005ab575f815560010162000596565b50505b505050565b81516001600160401b03811115620005cf57620005cf6200035a565b620005e781620005e0845462000529565b8462000563565b602080601f8311600181146200061d575f8415620006055750858301515b5f19600386901b1c1916600185901b17855562000677565b5f85815260208120601f198616915b828110156200064d578886015182559484019460019091019084016200062c565b50858210156200066b57878501515f19600388901b60f8161c191681555b505060018460011b0185555b505050505050565b634e487b7160e01b5f52603260045260245ffd5b60805160a05160c0516124d8620006e15f395f81816105900152610c0f01525f818161067c015261149301525f81816104fc01528181610c8301528181610ef60152610fa601526124d85ff3fe6080604052600436106102d8575f3560e01c8063715018a611610189578063c434f97d116100d8578063dd9fe97c11610092578063ed9ec8881161006d578063ed9ec8881461088f578063ee1cc944146108ba578063f2fde38b146108d9578063f83d758b146108f8575f80fd5b8063dd9fe97c14610834578063e3c533871461085b578063e985e9c514610870575f80fd5b8063c434f97d14610792578063c87b56dd146107a6578063cc85e14a146107c5578063d3e0d31f146107e4578063d4582490146107f8578063dd3b5f9a14610815575f80fd5b806395d89b4111610143578063a22cb4651161011e578063a22cb4651461071b578063b88d4fde1461073a578063bdaad48814610759578063c002d23d14610778575f80fd5b806395d89b41146106df5780639d1b464a146106f35780639e94bb9314610707575f80fd5b8063715018a61461062f5780637aad8789146106435780637bcf9fd5146106565780638830dea21461066b5780638854a0ff1461069e5780638da5cb5b146106c2575f80fd5b806332cb6b0c116102455780634d04492c116101ff5780635f516836116101da5780635f516836146105b25780636352211e146105dd5780636c0360eb146105fc57806370a0823114610610575f80fd5b80634d04492c1461054b57806355f804b3146105605780635e694a921461057f575f80fd5b806332cb6b0c146104835780633676fe6a146104985780633ccfd60b146104b857806342842e0e146104cc57806344478425146104eb57806349c657db1461051e575f80fd5b80631249c58b116102965780631249c58b146103ce57806318160ddd146103d65780631dedca25146103f857806323b872dd1461040d57806325fd90f31461042c5780632a55205a14610445575f80fd5b8062c84c20146102dc57806301ffc9a71461030757806306fdde0314610336578063081812fc14610357578063095ea7b31461038e57806311213086146103af575b5f80fd5b3480156102e7575f80fd5b506102f0600281565b60405160ff90911681526020015b60405180910390f35b348015610312575f80fd5b50610326610321366004611e3a565b61090c565b60405190151581526020016102fe565b348015610341575f80fd5b5061034a61091c565b6040516102fe9190611ea2565b348015610362575f80fd5b50610376610371366004611eb4565b6109ac565b6040516001600160a01b0390911681526020016102fe565b348015610399575f80fd5b506103ad6103a8366004611ee6565b6109d3565b005b3480156103ba575f80fd5b506103266103c9366004611f0e565b6109e2565b6103ad610ad9565b3480156103e1575f80fd5b506103ea610da8565b6040519081526020016102fe565b348015610403575f80fd5b506103ea602a5481565b348015610418575f80fd5b506103ad610427366004611f27565b610db6565b348015610437575f80fd5b50600a546103269060ff1681565b348015610450575f80fd5b5061046461045f366004611f60565b610e3f565b604080516001600160a01b0390931683526020830191909152016102fe565b34801561048e575f80fd5b506103ea610d0581565b3480156104a3575f80fd5b50600a5461032690600160a81b900460ff1681565b3480156104c3575f80fd5b506103ad610ec1565b3480156104d7575f80fd5b506103ad6104e6366004611f27565b611013565b3480156104f6575f80fd5b506103767f000000000000000000000000000000000000000000000000000000000000000081565b348015610529575f80fd5b506105336101f481565b6040516001600160601b0390911681526020016102fe565b348015610556575f80fd5b506103ea602b5481565b34801561056b575f80fd5b506103ad61057a366004611f80565b611032565b34801561058a575f80fd5b506103767f000000000000000000000000000000000000000000000000000000000000000081565b3480156105bd575f80fd5b506103ea6105cc366004611eb4565b602e6020525f908152604090205481565b3480156105e8575f80fd5b506103766105f7366004611eb4565b611085565b348015610607575f80fd5b5061034a61108f565b34801561061b575f80fd5b506103ea61062a366004611f0e565b61109e565b34801561063a575f80fd5b506103ad6110e3565b34801561064e575f80fd5b506102f05f81565b348015610661575f80fd5b506103ea602c5481565b348015610676575f80fd5b506103ea7f000000000000000000000000000000000000000000000000000000000000000081565b3480156106a9575f80fd5b50600a546103769061010090046001600160a01b031681565b3480156106cd575f80fd5b506008546001600160a01b0316610376565b3480156106ea575f80fd5b5061034a6110f4565b3480156106fe575f80fd5b506103ea611103565b348015610712575f80fd5b506102f0600181565b348015610726575f80fd5b506103ad610735366004611ffb565b611132565b348015610745575f80fd5b506103ad610754366004612040565b61113d565b348015610764575f80fd5b506103ad610773366004611f0e565b611155565b348015610783575f80fd5b506103ea660110d9316ec00081565b34801561079d575f80fd5b506027546103ea565b3480156107b1575f80fd5b5061034a6107c0366004611eb4565b6111d5565b3480156107d0575f80fd5b506103ad6107df366004612115565b611241565b3480156107ef575f80fd5b506103ea6112a1565b348015610803575f80fd5b506103ea69028a857425466f80000081565b348015610820575f80fd5b506102f061082f366004611eb4565b6112b2565b34801561083f575f80fd5b506103767360b9262456de011f7d15a54cdd8c48baaa8b022f81565b348015610866575f80fd5b506103ea602d5481565b34801561087b575f80fd5b5061032661088a36600461212e565b61133e565b34801561089a575f80fd5b506103ea6108a9366004611f0e565b602f6020525f908152604090205481565b3480156108c5575f80fd5b506103ad6108d4366004612115565b61136b565b3480156108e4575f80fd5b506103ad6108f3366004611f0e565b6113b4565b348015610903575f80fd5b506102f0600381565b5f610916826113f1565b92915050565b60606002805461092b90612156565b80601f016020809104026020016040519081016040528092919081815260200182805461095790612156565b80156109a25780601f10610979576101008083540402835291602001916109a2565b820191905f5260205f20905b81548152906001019060200180831161098557829003601f168201915b5050505050905090565b5f6109b6826113fb565b505f828152600660205260409020546001600160a01b0316610916565b6109de828233611433565b5050565b600a545f9061010090046001600160a01b0316610a0057505f919050565b600a54604080516001600160a01b0385811660248084019190915283518084039091018152604490920183526020820180516001600160e01b03166370a0823160e01b17905291515f9384936101009091041691610a5d9161218e565b5f60405180830381855afa9150503d805f8114610a95576040519150601f19603f3d011682016040523d82523d5f602084013e610a9a565b606091505b5091509150811580610aad575060208151105b15610abb57505f9392505050565b5f81806020019051810190610ad091906121a9565b11949350505050565b610ae1611440565b600a5460ff16610b0457604051630d0ca57160e21b815260040160405180910390fd5b333b15610b245760405163875fdad760e01b815260040160405180910390fd5b600a54600160a81b900460ff168015610b435750610b41336109e2565b155b15610b615760405163f947691f60e01b815260040160405180910390fd5b6027545f03610b83576040516352df9fe560e01b815260040160405180910390fd5b660110d9316ec000341015610bbf57604051630d35e92160e01b8152660110d9316ec00060048201523460248201526044015b60405180910390fd5b5f610bc861146a565b335f908152602f60205260408120805492935090610be5836121d4565b90915550506040516340c10f1960e01b815233600482015269028a857425466f80000060248201527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906340c10f19906044015f604051808303815f87803b158015610c58575f80fd5b505af1158015610c6a573d5f803e3d5ffd5b50505050610c803382660110d9316ec000611516565b5f7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316660110d9316ec0006040515f6040518083038185875af1925050503d805f8114610cf0576040519150601f19603f3d011682016040523d82523d5f602084013e610cf5565b606091505b5050905080610d1757604051636b46137160e01b815260040160405180910390fd5b5f610d29660110d9316ec000346121ec565b90508015610d99576040515f90339083908381818185875af1925050503d805f8114610d70576040519150601f19603f3d011682016040523d82523d5f602084013e610d75565b606091505b5050905080610d9757604051633c31275160e21b815260040160405180910390fd5b505b505050610da66001600955565b565b5f610db16112a1565b905090565b6001600160a01b038216610ddf57604051633250574960e11b81525f6004820152602401610bb6565b5f610deb8383336115de565b9050836001600160a01b0316816001600160a01b031614610e39576040516364283d7b60e01b81526001600160a01b0380861660048301526024820184905282166044820152606401610bb6565b50505050565b5f82815260016020526040812080548291906001600160a01b03811690600160a01b90046001600160601b031681610e915750505f546001600160a01b03811690600160a01b90046001600160601b03165b5f612710610ea86001600160601b038416896121ff565b610eb2919061222a565b92989297509195505050505050565b610ec96116d0565b610ed1611440565b475f819003610ef35760405163043f9e1160e41b815260040160405180910390fd5b5f7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316826040515f6040518083038185875af1925050503d805f8114610f5c576040519150601f19603f3d011682016040523d82523d5f602084013e610f61565b606091505b5050905080610fa45760405162461bcd60e51b815260206004820152600f60248201526e15da5d1a191c985dc819985a5b1959608a1b6044820152606401610bb6565b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03167f7084f5476618d8e60b11ef0d7d3f06914655adb8793e28ff7f018d4c76d505d583604051610fff91815260200190565b60405180910390a25050610da66001600955565b61102d83838360405180602001604052805f81525061113d565b505050565b61103a6116d0565b600b611047828483612281565b507f6741b2fc379fad678116fe3d4d4b9a1a184ab53ba36b86ad0fa66340b1ab41ad828260405161107992919061233b565b60405180910390a15050565b5f610916826113fb565b6060600b805461092b90612156565b5f6001600160a01b0382166110c8576040516322718ad960e21b81525f6004820152602401610bb6565b506001600160a01b03165f9081526005602052604090205490565b6110eb6116d0565b610da65f6116fd565b60606003805461092b90612156565b5f6027545f03611126576040516352df9fe560e01b815260040160405180910390fd5b50660110d9316ec00090565b6109de33838361174e565b611148848484610db6565b610e3933858585856117ec565b61115d6116d0565b6001600160a01b0381166111845760405163e6c4247b60e01b815260040160405180910390fd5b600a8054610100600160a81b0319166101006001600160a01b038416908102919091179091556040517f1386da33541fecf49b0f53895aef3f30f6e3e08755deb017e106e7ae4f4c976d905f90a250565b5f818152600460205260409020546060906001600160a01b031661120f57604051637e27328960e01b815260048101839052602401610bb6565b600b61121a83611914565b60405160200161122b929190612369565b6040516020818303038152906040529050919050565b6112496116d0565b600a8054821515600160a81b0260ff60a81b199091161790556040517fcd3179acb7e955c5642e607563428b73c4fbbfb6b9ff0cbb4b9375f6ed7368549061129690831515815260200190565b60405180910390a150565b5f602754610d05610db191906121ec565b5f8115806112c15750610d0582115b156112df5760405163c30436e960e01b815260040160405180910390fd5b5f600c60806112ef6001866121ec565b6112f9919061222a565b601b8110611309576113096123fc565b015490505f608061131b6001866121ec565b6113259190612410565b6113309060026121ff565b9190911c6003169392505050565b6001600160a01b039182165f90815260076020908152604080832093909416825291909152205460ff1690565b6113736116d0565b600a805460ff19168215159081179091556040519081527fe5bc95a6b545086b8d848e427dd4f53db32f2726891bf1a84791c5ffd48adf2690602001611296565b6113bc6116d0565b6001600160a01b0381166113e557604051631e4fbdf760e01b81525f6004820152602401610bb6565b6113ee816116fd565b50565b5f610916826119a4565b5f818152600460205260408120546001600160a01b03168061091657604051637e27328960e01b815260048101849052602401610bb6565b61102d83838360016119e3565b60026009540361146357604051633ee5aeb560e01b815260040160405180910390fd5b6002600955565b5f6027545f0361148d576040516352df9fe560e01b815260040160405180910390fd5b5f6027547f00000000000000000000000000000000000000000000000000000000000000006028546040516020016114cf929190918252602082015260400190565b604051602081830303815290604052805190602001205f1c6114f19190612410565b602880549192505f611502836121d4565b919050555061151081611ae7565b91505090565b5f6115226001436121ec565b60408051914060208301526bffffffffffffffffffffffff19606087901b16908201526054810184905260740160408051601f1981840301815291815281516020928301205f868152602e909352912081905590506115818484611bc5565b82846001600160a01b03167fb9f3ced6543898862505bbfe24e67167a45c41b0be5131e6b815fe52f2082df7846115b7876112b2565b6040805192835260ff9091166020830152810185905260600160405180910390a350505050565b5f828152600460205260408120546001600160a01b039081169083161561160a5761160a818486611c26565b6001600160a01b03811615611644576116255f855f806119e3565b6001600160a01b0381165f90815260056020526040902080545f190190555b6001600160a01b03851615611672576001600160a01b0385165f908152600560205260409020805460010190555b5f8481526004602052604080822080546001600160a01b0319166001600160a01b0389811691821790925591518793918516917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef91a4949350505050565b6008546001600160a01b03163314610da65760405163118cdaa760e01b8152336004820152602401610bb6565b600880546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0905f90a35050565b6001600160a01b03821661178057604051630b61174360e31b81526001600160a01b0383166004820152602401610bb6565b6001600160a01b038381165f81815260076020908152604080832094871680845294825291829020805460ff191686151590811790915591519182527f17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31910160405180910390a3505050565b6001600160a01b0383163b1561190d57604051630a85bd0160e11b81526001600160a01b0384169063150b7a029061182e908890889087908790600401612423565b6020604051808303815f875af1925050508015611868575060408051601f3d908101601f191682019092526118659181019061245f565b60015b6118cf573d808015611895576040519150601f19603f3d011682016040523d82523d5f602084013e61189a565b606091505b5080515f036118c757604051633250574960e11b81526001600160a01b0385166004820152602401610bb6565b805160208201fd5b6001600160e01b03198116630a85bd0160e11b1461190b57604051633250574960e11b81526001600160a01b0385166004820152602401610bb6565b505b5050505050565b60605f61192083611c8a565b60010190505f8167ffffffffffffffff81111561193f5761193f61202c565b6040519080825280601f01601f191660200182016040528015611969576020820181803683370190505b5090508181016020015b5f19016f181899199a1a9b1b9c1cb0b131b232b360811b600a86061a8153600a850494508461197357509392505050565b5f6001600160e01b031982166380ac58cd60e01b14806119d457506001600160e01b03198216635b5e139f60e01b145b80610916575061091682611d61565b80806119f757506001600160a01b03821615155b15611ab8575f611a06846113fb565b90506001600160a01b03831615801590611a325750826001600160a01b0316816001600160a01b031614155b8015611a455750611a43818461133e565b155b15611a6e5760405163a9fbf51f60e01b81526001600160a01b0384166004820152602401610bb6565b8115611ab65783856001600160a01b0316826001600160a01b03167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b92560405160405180910390a45b505b50505f90815260066020526040902080546001600160a01b0319166001600160a01b0392909216919091179055565b5f611af182611d95565b90505f611b0b6001602754611b0691906121ec565b611d95565b90506001602754611b1c91906121ec565b8314611b33575f8381526029602052604090208190555b60278054905f611b428361247a565b91905055505f611b51836112b2565b905060ff8116611b7457602a8054905f611b6a8361247a565b9190505550611bbe565b5f1960ff821601611b8e57602b8054905f611b6a8361247a565b60011960ff821601611ba957602c8054905f611b6a8361247a565b602d8054905f611bb88361247a565b91905055505b5050919050565b6001600160a01b038216611bee57604051633250574960e11b81525f6004820152602401610bb6565b5f611bfa83835f6115de565b90506001600160a01b0381161561102d576040516339e3563760e11b81525f6004820152602401610bb6565b611c31838383611dc1565b61102d576001600160a01b038316611c5f57604051637e27328960e01b815260048101829052602401610bb6565b60405163177e802f60e01b81526001600160a01b038316600482015260248101829052604401610bb6565b5f8072184f03e93ff9f4daa797ed6e38ed64bf6a1f0160401b8310611cc85772184f03e93ff9f4daa797ed6e38ed64bf6a1f0160401b830492506040015b6d04ee2d6d415b85acef81000000008310611cf4576d04ee2d6d415b85acef8100000000830492506020015b662386f26fc100008310611d1257662386f26fc10000830492506010015b6305f5e1008310611d2a576305f5e100830492506008015b6127108310611d3e57612710830492506004015b60648310611d50576064830492506002015b600a83106109165760010192915050565b5f6001600160e01b0319821663152a902d60e11b148061091657506301ffc9a760e01b6001600160e01b0319831614610916565b5f818152602960205260408120548015611daf5780611dba565b611dba83600161248f565b9392505050565b5f6001600160a01b03831615801590611e1d5750826001600160a01b0316846001600160a01b03161480611dfa5750611dfa848461133e565b80611e1d57505f828152600660205260409020546001600160a01b038481169116145b949350505050565b6001600160e01b0319811681146113ee575f80fd5b5f60208284031215611e4a575f80fd5b8135611dba81611e25565b5f5b83811015611e6f578181015183820152602001611e57565b50505f910152565b5f8151808452611e8e816020860160208601611e55565b601f01601f19169290920160200192915050565b602081525f611dba6020830184611e77565b5f60208284031215611ec4575f80fd5b5035919050565b80356001600160a01b0381168114611ee1575f80fd5b919050565b5f8060408385031215611ef7575f80fd5b611f0083611ecb565b946020939093013593505050565b5f60208284031215611f1e575f80fd5b611dba82611ecb565b5f805f60608486031215611f39575f80fd5b611f4284611ecb565b9250611f5060208501611ecb565b9150604084013590509250925092565b5f8060408385031215611f71575f80fd5b50508035926020909101359150565b5f8060208385031215611f91575f80fd5b823567ffffffffffffffff80821115611fa8575f80fd5b818501915085601f830112611fbb575f80fd5b813581811115611fc9575f80fd5b866020828501011115611fda575f80fd5b60209290920196919550909350505050565b80358015158114611ee1575f80fd5b5f806040838503121561200c575f80fd5b61201583611ecb565b915061202360208401611fec565b90509250929050565b634e487b7160e01b5f52604160045260245ffd5b5f805f8060808587031215612053575f80fd5b61205c85611ecb565b935061206a60208601611ecb565b925060408501359150606085013567ffffffffffffffff8082111561208d575f80fd5b818701915087601f8301126120a0575f80fd5b8135818111156120b2576120b261202c565b604051601f8201601f19908116603f011681019083821181831017156120da576120da61202c565b816040528281528a60208487010111156120f2575f80fd5b826020860160208301375f60208483010152809550505050505092959194509250565b5f60208284031215612125575f80fd5b611dba82611fec565b5f806040838503121561213f575f80fd5b61214883611ecb565b915061202360208401611ecb565b600181811c9082168061216a57607f821691505b60208210810361218857634e487b7160e01b5f52602260045260245ffd5b50919050565b5f825161219f818460208701611e55565b9190910192915050565b5f602082840312156121b9575f80fd5b5051919050565b634e487b7160e01b5f52601160045260245ffd5b5f600182016121e5576121e56121c0565b5060010190565b81810381811115610916576109166121c0565b8082028115828204841417610916576109166121c0565b634e487b7160e01b5f52601260045260245ffd5b5f8261223857612238612216565b500490565b601f82111561102d57805f5260205f20601f840160051c810160208510156122625750805b601f840160051c820191505b8181101561190d575f815560010161226e565b67ffffffffffffffff8311156122995761229961202c565b6122ad836122a78354612156565b8361223d565b5f601f8411600181146122de575f85156122c75750838201355b5f19600387901b1c1916600186901b17835561190d565b5f83815260208120601f198716915b8281101561230d57868501358255602094850194600190920191016122ed565b5086821015612329575f1960f88860031b161c19848701351681555b505060018560011b0183555050505050565b60208152816020820152818360408301375f818301604090810191909152601f909201601f19160101919050565b5f80845461237681612156565b6001828116801561238e57600181146123a3576123cf565b60ff19841687528215158302870194506123cf565b885f526020805f205f5b858110156123c65781548a8201529084019082016123ad565b50505082870194505b5050505083516123e3818360208801611e55565b64173539b7b760d91b9101908152600501949350505050565b634e487b7160e01b5f52603260045260245ffd5b5f8261241e5761241e612216565b500690565b6001600160a01b03858116825284166020820152604081018390526080606082018190525f9061245590830184611e77565b9695505050505050565b5f6020828403121561246f575f80fd5b8151611dba81611e25565b5f81612488576124886121c0565b505f190190565b80820180821115610916576109166121c056fea2646970667358221220b440e6a2f6dbcd8b9ecc8b75a8b4f8f63738c264fd3dc9a3a38fc8a836adf38264736f6c63430008180033";
+  var RARITY_BITMAP = ["0x51c14001018110160015101100050110440a0018005445504400516001050054","0x54c1051104001d01401022902460400020014062045414d10091500111401c54","0x5401000040002101000824515400129510044505201214044145054161c40480","0x1117442019001514080040a404530414841045034020044010200045a5545040","0x44112205410415196405455205040411184000242a1511054410010240125401","0x55442211000044001a00100401410151080041840424822500504180005a4000","0x0292020144000100412008112854045000011049045121000800401108504400","0x8400111000401660110108406848010055011440148024210194440245608859","0x40180000810401040001100c1811005014010110404410452c44000000300080","0x900080510155515401016a080183019000441020010556000012010a10450108","0x0914181018012230c602649400495054c4001104408044205062100010004550","0x5044044401006525041014490001000040460018001108084004005944441601","0x005a5561114094465554880640424084100a4844600541216208414151048610","0x402920850100402542c950510440144154404014511105208004009415084005","0x11400800500241441105401001411101004054000002514041c1004059018004","0x0604401043084000109404010540880c54402440500916281105450840111911","0x008001110805080a452d00109400049140288054150561100131950500000593","0x0410510000410840014000140448a084800514501d4064006800210050124540","0x01100144000051140520044021844680011002051016208405155000080b7004","0x9155208015888203100144915201045500214000000251901442025050010800","0x4041122510364100401101040000106550101500020900034011104501025400","0x4410500491540056014048548124804018301010000514000950428480400510","0x04215051000308409a0000428600559295140448810000410111208004809411","0x0415d10000400550420150225016002084402411204100101201260080401129","0x0114160440120500842411115558050854011800046044412000100200464014","0x140c6001002044400814114425411062200544441504850041104a4481001190","0x0000000000000000000000000000000000000000000000000000000000000104"];
+
+  // ---- Minimal ABIs for calls after deploy ----
+  var TOKEN_RW_ABI = [
+    "function owner() view returns (address)",
+    "function totalSupply() view returns (uint256)",
+    "function MAX_SUPPLY() view returns (uint256)",
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function minters(address) view returns (bool)",
+    "function setMinter(address minter, bool allowed)"
+  ];
+  var NFT_RW_ABI = [
+    "function owner() view returns (address)",
+    "function revenueWallet() view returns (address)",
+    "function deckHash() view returns (bytes32)",
+    "function hanaToken() view returns (address)",
+    "function baseURI() view returns (string)",
+    "function MAX_SUPPLY() view returns (uint256)",
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function mintActive() view returns (bool)",
+    "function totalSupply() view returns (uint256)",
+    "function royaltyInfo(uint256 tokenId, uint256 salePrice) view returns (address receiver, uint256 royaltyAmount)",
+    "function setMintActive(bool active)"
+  ];
+
+  var RPC_URL = "https://bsc-dataseed.binance.org/";
+  var BSCSCAN = "https://bscscan.com/address/";
+  var BSCSCAN_TX = "https://bscscan.com/tx/";
+
+  var pubProvider = null;
+  var walletProvider = null;
+  var signer = null;
+  var account = null;
+  var tokenAddress = "";
+  var nftAddress = "";
+
+  function el(id) { return document.getElementById(id); }
+  function shortAddr(a) { return a ? a.slice(0, 6) + "\u2026" + a.slice(-4) : "-"; }
+  function fmtBnb(wei) {
+    try { return ethers.formatEther(wei); } catch (e) { return "?"; }
+  }
+  function fmtIdr(bnbStr) {
+    var n = parseFloat(bnbStr);
+    if (isNaN(n)) return "-";
+    return "Rp " + Math.round(n * BNB_IDR_REF).toLocaleString("id-ID");
+  }
+  function showNote(msg, kind) {
+    var n = el("note");
+    n.className = "note-box " + (kind || "info");
+    n.innerHTML = msg;
+    n.classList.remove("hidden");
+  }
+  function setStep(id, state) {
+    var s = el(id);
+    if (!s) return;
+    s.classList.remove("todo", "active", "blocked", "done");
+    s.classList.add(state);
+  }
+  function getPubProvider() {
+    if (!pubProvider) pubProvider = new ethers.JsonRpcProvider(RPC_URL);
+    return pubProvider;
+  }
+  function isAddr(v) {
+    try { return v && ethers.isAddress(v) && v !== ethers.ZeroAddress; } catch (e) { return false; }
+  }
+
+  // ---- Gas estimates (live gas price, measured gas) ----
+  var lastGasPrice = null;
+  function costText(gas) {
+    if (!lastGasPrice) return { bnb: "-", idr: "-" };
+    var wei = lastGasPrice * BigInt(gas);
+    var bnb = fmtBnb(wei);
+    return { bnb: bnb + " BNB", idr: fmtIdr(bnb) };
+  }
+  async function refreshEstimates() {
+    var status = el("estimate-status");
+    try {
+      var fee = await getPubProvider().getFeeData();
+      lastGasPrice = fee.gasPrice;
+      var totalGas = MEASURED_TOKEN_GAS + MEASURED_NFT_GAS + MEASURED_SETMINTER_GAS + MEASURED_ACTIVATE_GAS;
+      var total = costText(totalGas);
+      el("gas-price").textContent = (Number(ethers.formatUnits(lastGasPrice, "gwei"))).toFixed(3) + " gwei";
+      el("gas-estimate").textContent = totalGas.toLocaleString("en-US") + " gas total (token " + MEASURED_TOKEN_GAS.toLocaleString("en-US") + " + NFT " + MEASURED_NFT_GAS.toLocaleString("en-US") + " + setMinter " + MEASURED_SETMINTER_GAS.toLocaleString("en-US") + " + activate " + MEASURED_ACTIVATE_GAS.toLocaleString("en-US") + ")";
+      el("cost-bnb").textContent = total.bnb;
+      el("cost-idr").textContent = total.idr + " (at the live gas price; the wallet shows the exact cost before you confirm)";
+      if (status) status.textContent = "Estimate refreshed. Actual cost depends on the gas price when you sign.";
+    } catch (e) {
+      if (status) status.textContent = "Could not read the live gas price (" + (e && e.message ? e.message : e) + "). The wallet will still show the exact cost before you confirm.";
+    }
+  }
+
+  // ---- Step 1: connect ----
+  async function connectWallet() {
+    if (!window.ethereum) {
+      showNote("No browser wallet found. Install MetaMask or Binance Wallet, then reload this page.", "error");
+      return;
+    }
+    try {
+      walletProvider = new ethers.BrowserProvider(window.ethereum);
+      var accounts = await walletProvider.send("eth_requestAccounts", []);
+      account = accounts[0];
+      signer = await walletProvider.getSigner();
+      var net = await walletProvider.getNetwork();
+      el("wallet-status").textContent = "Connected.";
+      el("wallet-address").textContent = account;
+      el("wallet-address-row").classList.remove("hidden");
+      el("chain-status").textContent = net.chainId === BSC_CHAIN_ID ? "BNB Smart Chain (56) \u2713" : "Chain " + net.chainId + " \u2014 wrong network";
+      el("artifact-status").textContent = "Loaded (embedded ABI + bytecode, 27-word bitmap) \u2713";
+      if (net.chainId !== BSC_CHAIN_ID) {
+        el("switch-row").classList.remove("hidden");
+      } else {
+        el("switch-row").classList.add("hidden");
+      }
+      setStep("step-1", "done");
+      setStep("step-2", "active");
+      updateButtons();
+      await refreshEstimates();
+      await refreshMinterStatus();
+    } catch (e) {
+      showNote("Wallet connection failed: " + (e && e.message ? e.message : e), "error");
+    }
+  }
+  async function switchChain() {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC_CHAIN_HEX }] });
+      await connectWallet();
+    } catch (e) {
+      showNote("Could not switch networks: " + (e && e.message ? e.message : e), "error");
+    }
+  }
+  function needWallet() {
+    if (!signer || !account) { showNote("Connect your wallet first (step 1).", "warn"); return false; }
+    return true;
+  }
+  function updateButtons() {
+    el("deploy-token-btn").disabled = !(signer && !tokenAddress);
+    el("deploy-nft-btn").disabled = !(signer && tokenAddress && !nftAddress);
+    el("setminter-btn").disabled = !(signer && tokenAddress && nftAddress);
+    el("verify-btn").disabled = !(isAddr(el("verify-address").value) && isAddr(el("verify-token-address").value));
+    el("activate-btn").disabled = !(signer && isAddr(el("activate-address").value));
+    el("close-btn").disabled = !(signer && isAddr(el("close-address").value));
+  }
+  function fillAddressFields() {
+    var map = [
+      ["nft-token-address", tokenAddress],
+      ["minter-nft-address", nftAddress],
+      ["verify-address", nftAddress],
+      ["verify-token-address", tokenAddress],
+      ["activate-address", nftAddress],
+      ["close-address", nftAddress]
+    ];
+    map.forEach(function (pair) {
+      var input = el(pair[0]);
+      if (input && pair[1]) input.value = pair[1];
+    });
+    var call = el("minter-call");
+    if (call && tokenAddress && nftAddress) {
+      call.textContent = "HanaToken(" + tokenAddress + ").setMinter(" + nftAddress + ", true)";
+    }
+    var vExp = el("v-token-exp");
+    if (vExp && tokenAddress) vExp.textContent = shortAddr(tokenAddress);
+    updateButtons();
+  }
+
+  // ---- Step 3: deploy token ----
+  async function deployToken() {
+    if (!needWallet()) return;
+    var btn = el("deploy-token-btn");
+    btn.disabled = true;
+    el("deploy-token-status").textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var factory = new ethers.ContractFactory(TOKEN_ABI, TOKEN_BYTECODE, signer);
+      var contract = await factory.deploy(OWNER);
+      var tx = contract.deploymentTransaction();
+      el("deploy-token-tx").textContent = tx.hash;
+      el("deploy-token-tx-link").href = BSCSCAN_TX + tx.hash;
+      el("deploy-token-tx-row").classList.remove("hidden");
+      el("deploy-token-status").textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await contract.waitForDeployment();
+      tokenAddress = await contract.getAddress();
+      el("token-address").textContent = tokenAddress;
+      el("token-address-link").href = BSCSCAN + tokenAddress;
+      el("token-verify-link").href = BSCSCAN + tokenAddress + "#code";
+      el("token-deployed-row").classList.remove("hidden");
+      el("deploy-token-status").textContent = "Deployed \u2713";
+      setStep("step-3", "done");
+      setStep("step-4", "active");
+      fillAddressFields();
+      await refreshMinterStatus();
+      showNote("$HANA token deployed at <code class='mono'>" + tokenAddress + "</code>. Next: deploy the NFT (step 4).", "ok");
+    } catch (e) {
+      el("deploy-token-status").textContent = "Deploy failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+
+  // ---- Step 4: deploy NFT ----
+  async function deployNft() {
+    if (!needWallet()) return;
+    var tokenAddr = (el("nft-token-address").value || "").trim();
+    if (!isAddr(tokenAddr)) {
+      showNote("Enter the $HANA token address from step 3 first.", "warn");
+      return;
+    }
+    tokenAddress = tokenAddr;
+    var btn = el("deploy-nft-btn");
+    btn.disabled = true;
+    el("deploy-nft-status").textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var factory = new ethers.ContractFactory(NFT_ABI, NFT_BYTECODE, signer);
+      var contract = await factory.deploy(OWNER, REVENUE, REGISTRY, BASE_URI, DECK_HASH, RARITY_BITMAP, tokenAddr);
+      var tx = contract.deploymentTransaction();
+      el("deploy-nft-tx").textContent = tx.hash;
+      el("deploy-nft-tx-link").href = BSCSCAN_TX + tx.hash;
+      el("deploy-nft-tx-row").classList.remove("hidden");
+      el("deploy-nft-status").textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await contract.waitForDeployment();
+      nftAddress = await contract.getAddress();
+      el("nft-address").textContent = nftAddress;
+      el("nft-address-link").href = BSCSCAN + nftAddress;
+      el("nft-verify-link").href = BSCSCAN + nftAddress + "#code";
+      el("nft-deployed-row").classList.remove("hidden");
+      el("deploy-nft-status").textContent = "Deployed \u2713";
+      setStep("step-4", "done");
+      setStep("step-5", "active");
+      fillAddressFields();
+      await refreshMinterStatus();
+      showNote("NFT deployed at <code class='mono'>" + nftAddress + "</code>. Next: set the minter on the token (step 5).", "ok");
+    } catch (e) {
+      el("deploy-nft-status").textContent = "Deploy failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+
+  // ---- Step 5: setMinter ----
+  async function refreshMinterStatus() {
+    var badge = el("minter-badge");
+    var tokenAddr = tokenAddress || (el("verify-token-address").value || "").trim();
+    var nftAddr = nftAddress || (el("minter-nft-address").value || "").trim();
+    if (!isAddr(tokenAddr) || !isAddr(nftAddr)) {
+      if (badge) { badge.textContent = "Waiting for deploy"; badge.className = "badge2"; }
+      return;
+    }
+    try {
+      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, getPubProvider());
+      var tOwner = await token.owner();
+      var isMinter = await token.minters(nftAddr);
+      el("token-owner-status").textContent = tOwner + (tOwner.toLowerCase() === OWNER.toLowerCase() ? " (My Wallet \u2713)" : " (NOT My Wallet!)");
+      el("minter-now-status").textContent = String(isMinter);
+      if (badge) {
+        badge.textContent = isMinter ? "Minter is set \u2713" : "Minter NOT set yet";
+        badge.className = "badge2 " + (isMinter ? "ok" : "bad");
+      }
+      var isOwner = account && tOwner.toLowerCase() === account.toLowerCase();
+      el("minter-owner-row").classList.toggle("hidden", !isOwner);
+      el("minter-agent-row").classList.toggle("hidden", !!isOwner);
+      if (isMinter) setStep("step-5", "done");
+    } catch (e) {
+      if (badge) { badge.textContent = "Could not read token: " + (e && e.message ? e.message : e); badge.className = "badge2 bad"; }
+    }
+    updateButtons();
+  }
+  async function setMinter() {
+    if (!needWallet()) return;
+    var tokenAddr = tokenAddress;
+    var nftAddr = (el("minter-nft-address").value || "").trim();
+    if (!isAddr(tokenAddr) || !isAddr(nftAddr)) {
+      showNote("Deploy both contracts first (steps 3\u20134).", "warn");
+      return;
+    }
+    var btn = el("setminter-btn");
+    btn.disabled = true;
+    el("setminter-status").textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, signer);
+      var tx = await token.setMinter(nftAddr, true);
+      el("setminter-tx").textContent = tx.hash;
+      el("setminter-tx-link").href = BSCSCAN_TX + tx.hash;
+      el("setminter-tx-row").classList.remove("hidden");
+      el("setminter-status").textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await tx.wait();
+      el("setminter-status").textContent = "Minter set \u2713";
+      setStep("step-5", "done");
+      setStep("step-6", "active");
+      await refreshMinterStatus();
+      showNote("Minter is set. Next: run the on-chain checks (step 6).", "ok");
+    } catch (e) {
+      el("setminter-status").textContent = "setMinter failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+
+  // ---- Step 6: verify on-chain ----
+  function setCheck(id, value, pass) {
+    var v = el(id);
+    var r = el(id + "-r");
+    if (v) v.textContent = value;
+    if (r) {
+      r.textContent = pass === true ? "PASS" : pass === false ? "FAIL" : "-";
+      r.className = pass === true ? "check-pass" : pass === false ? "check-fail" : "";
+    }
+  }
+  async function verifyOnChain() {
+    var nftAddr = (el("verify-address").value || "").trim();
+    var tokenAddr = (el("verify-token-address").value || "").trim();
+    if (!isAddr(nftAddr) || !isAddr(tokenAddr)) {
+      showNote("Enter both deployed contract addresses first.", "warn");
+      return;
+    }
+    var btn = el("verify-btn");
+    btn.disabled = true;
+    el("verify-status").textContent = "Reading from BNB Smart Chain\u2026";
+    el("verify-table").classList.remove("hidden");
+    try {
+      var provider = getPubProvider();
+      var nft = new ethers.Contract(nftAddr, NFT_RW_ABI, provider);
+      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, provider);
+      var dh = await nft.deckHash();
+      setCheck("v-deckhash", dh, dh.toLowerCase() === DECK_HASH.toLowerCase());
+      var ow = await nft.owner();
+      setCheck("v-owner", ow, ow.toLowerCase() === OWNER.toLowerCase());
+      var rev = await nft.revenueWallet();
+      setCheck("v-revenue", rev, rev.toLowerCase() === REVENUE.toLowerCase());
+      var roy = await nft.royaltyInfo(1, 10000);
+      setCheck("v-royalty-addr", roy[0], roy[0].toLowerCase() === REVENUE.toLowerCase());
+      setCheck("v-royalty-amt", roy[1].toString(), roy[1] === 500n);
+      var active = await nft.mintActive();
+      setCheck("v-mintactive", String(active), active === false);
+      var max = await nft.MAX_SUPPLY();
+      setCheck("v-maxsupply", max.toString(), max === 3333n);
+      var ht = await nft.hanaToken();
+      setCheck("v-token", ht, ht.toLowerCase() === tokenAddr.toLowerCase());
+      var bu = await nft.baseURI();
+      setCheck("v-baseuri", bu, bu === BASE_URI);
+      var nm = await nft.name();
+      var sy = await nft.symbol();
+      setCheck("v-name", nm + " / " + sy, nm === "HANAMI BLOOM" && sy === "HANAMI");
+      var tow = await token.owner();
+      setCheck("v-token-owner", tow, tow.toLowerCase() === OWNER.toLowerCase());
+      var tmax = await token.MAX_SUPPLY();
+      setCheck("v-token-max", ethers.formatEther(tmax) + " $HANA", tmax === ethers.parseEther("1000000000"));
+      var tsup = await token.totalSupply();
+      setCheck("v-token-supply", ethers.formatEther(tsup) + " $HANA", tsup === ethers.parseEther("460000000"));
+      var isM = await token.minters(nftAddr);
+      setCheck("v-minter", String(isM), isM === true);
+      el("verify-status").textContent = "Checks finished. Every row must show PASS before activation (step 7). The mintActive row expects false until step 7.";
+      setStep("step-6", "done");
+      setStep("step-7", "active");
+    } catch (e) {
+      el("verify-status").textContent = "Verification failed: " + (e && e.message ? e.message : e);
+    }
+    btn.disabled = false;
+    updateButtons();
+  }
+
+  // ---- Steps 7-8: activate / close ----
+  async function setActive(active) {
+    if (!needWallet()) return;
+    var addr = ((active ? el("activate-address") : el("close-address")).value || "").trim();
+    if (!isAddr(addr)) {
+      showNote("Enter the NFT contract address first.", "warn");
+      return;
+    }
+    var btn = active ? el("activate-btn") : el("close-btn");
+    var status = active ? el("activate-status") : el("close-status");
+    btn.disabled = true;
+    status.textContent = "Waiting for wallet confirmation\u2026";
+    try {
+      var nft = new ethers.Contract(addr, NFT_RW_ABI, signer);
+      var tx = await nft.setMintActive(active);
+      var row = active ? el("activate-tx-row") : el("close-tx-row");
+      var link = active ? el("activate-tx-link") : el("close-tx-link");
+      var hashEl = active ? el("activate-tx") : el("close-tx");
+      hashEl.textContent = tx.hash;
+      link.href = BSCSCAN_TX + tx.hash;
+      row.classList.remove("hidden");
+      status.textContent = "Transaction sent \u2014 waiting for confirmation\u2026";
+      await tx.wait();
+      status.textContent = active ? "Minting is ACTIVE \u2713" : "Minting is CLOSED \u2713";
+      if (active) {
+        setStep("step-7", "done");
+        el("done-box").classList.remove("hidden");
+        showNote("Minting is LIVE. Finish the launch checklist below, then update the site config with the real addresses.", "ok");
+      } else {
+        setStep("step-8", "done");
+      }
+    } catch (e) {
+      status.textContent = "Transaction failed: " + (e && e.message ? e.message : e);
+      btn.disabled = false;
+    }
+    updateButtons();
+  }
+  async function refreshActivationEstimate() {
+    try {
+      var fee = await getPubProvider().getFeeData();
+      lastGasPrice = fee.gasPrice;
+      var c = costText(MEASURED_ACTIVATE_GAS);
+      el("activate-estimate").textContent = "Estimated: ~" + MEASURED_ACTIVATE_GAS.toLocaleString("en-US") + " gas \u2248 " + c.bnb + " (" + c.idr + ") at the live gas price.";
+      var c2 = costText(MEASURED_CLOSE_GAS);
+      el("close-estimate").textContent = "Estimated: ~" + MEASURED_CLOSE_GAS.toLocaleString("en-US") + " gas \u2248 " + c2.bnb + " (" + c2.idr + ") at the live gas price.";
+    } catch (e) {
+      el("activate-estimate").textContent = "Could not read the live gas price. The wallet will show the exact cost.";
+    }
+  }
+
+  // ---- Copy helpers ----
+  function copyText(text, doneMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { showNote(doneMsg, "ok"); }, function () { showNote("Copy failed \u2014 select the text manually.", "warn"); });
+    } else {
+      showNote("Copy is not supported here \u2014 select the text manually.", "warn");
+    }
+  }
+
+  // ---- Wire up ----
+  el("connect-btn").addEventListener("click", connectWallet);
+  el("switch-btn").addEventListener("click", switchChain);
+  el("refresh-estimate-btn").addEventListener("click", refreshEstimates);
+  el("deploy-token-btn").addEventListener("click", deployToken);
+  el("deploy-nft-btn").addEventListener("click", deployNft);
+  el("setminter-btn").addEventListener("click", setMinter);
+  el("refresh-minter-btn").addEventListener("click", refreshMinterStatus);
+  el("verify-btn").addEventListener("click", verifyOnChain);
+  el("refresh-activate-btn").addEventListener("click", refreshActivationEstimate);
+  el("activate-btn").addEventListener("click", function () { setActive(true); });
+  el("refresh-close-btn").addEventListener("click", refreshActivationEstimate);
+  el("close-btn").addEventListener("click", function () { setActive(false); });
+  el("copy-token-btn").addEventListener("click", function () { copyText(tokenAddress, "Token address copied."); });
+  el("copy-nft-btn").addEventListener("click", function () { copyText(nftAddress, "NFT address copied."); });
+  el("copy-minter-call-btn").addEventListener("click", function () { copyText(el("minter-call").textContent, "Call copied."); });
+  ["verify-address", "verify-token-address", "activate-address", "close-address", "nft-token-address", "minter-nft-address"].forEach(function (id) {
+    el(id).addEventListener("input", updateButtons);
+  });
+  if (window.ethereum) {
+    window.ethereum.on("accountsChanged", function () { connectWallet(); });
+    window.ethereum.on("chainChanged", function () { connectWallet(); });
+  }
+  el("artifact-status").textContent = "Loaded (embedded ABI + bytecode, 27-word bitmap) \u2713";
+  setStep("step-1", "active");
+  refreshEstimates();
+  refreshActivationEstimate();
+  updateButtons();
+})();
+</script>
+</body>
+</html>
