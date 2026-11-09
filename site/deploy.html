@@ -573,23 +573,36 @@
       if (badge) { badge.textContent = "Waiting for deploy"; badge.className = "badge2"; }
       return;
     }
-    try {
-      var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, getPubProvider());
-      var tOwner = await token.owner();
-      var isMinter = await token.minters(nftAddr);
-      el("token-owner-status").textContent = tOwner + (tOwner.toLowerCase() === OWNER.toLowerCase() ? " (My Wallet \u2713)" : " (NOT My Wallet!)");
-      el("minter-now-status").textContent = String(isMinter);
-      if (badge) {
-        badge.textContent = isMinter ? "Minter is set \u2713" : "Minter NOT set yet";
-        badge.className = "badge2 " + (isMinter ? "ok" : "bad");
-      }
-      var isOwner = account && tOwner.toLowerCase() === account.toLowerCase();
-      el("minter-owner-row").classList.toggle("hidden", !isOwner);
-      el("minter-agent-row").classList.toggle("hidden", !!isOwner);
-      if (isMinter) setStep("step-5", "done");
-    } catch (e) {
-      if (badge) { badge.textContent = "Could not read token: " + (e && e.message ? e.message : e); badge.className = "badge2 bad"; }
+    // Read via the public RPC first; if the in-app browser blocks that
+    // fetch, fall back to the connected wallet's own provider (which uses
+    // the wallet's native transport, not fetch, so it works in the
+    // Binance in-app browser where bsc-dataseed is unreachable).
+    var tOwner = null, isMinter = null, lastErr = null;
+    var providers = [getPubProvider()];
+    if (signer && signer.provider) providers.push(signer.provider);
+    for (var pi = 0; pi < providers.length; pi++) {
+      try {
+        var token = new ethers.Contract(tokenAddr, TOKEN_RW_ABI, providers[pi]);
+        tOwner = await token.owner();
+        isMinter = await token.minters(nftAddr);
+        break;
+      } catch (e2) { lastErr = e2; }
     }
+    if (tOwner === null) {
+      if (badge) { badge.textContent = "Could not read token: " + (lastErr && lastErr.message ? lastErr.message : lastErr); badge.className = "badge2 bad"; }
+      updateButtons();
+      return;
+    }
+    el("token-owner-status").textContent = tOwner + (tOwner.toLowerCase() === OWNER.toLowerCase() ? " (My Wallet \u2713)" : " (NOT My Wallet!)");
+    el("minter-now-status").textContent = String(isMinter);
+    if (badge) {
+      badge.textContent = isMinter ? "Minter is set \u2713" : "Minter NOT set yet";
+      badge.className = "badge2 " + (isMinter ? "ok" : "bad");
+    }
+    var isOwner = account && tOwner.toLowerCase() === account.toLowerCase();
+    el("minter-owner-row").classList.toggle("hidden", !isOwner);
+    el("minter-agent-row").classList.toggle("hidden", !!isOwner);
+    if (isMinter) setStep("step-5", "done");
     updateButtons();
   }
   async function setMinter() {
