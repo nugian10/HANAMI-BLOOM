@@ -81,7 +81,7 @@ https://hanami-kohl.vercel.app/
 1. Confirm the contract address from this file / the site — use only
    the published address.
 2. Check Agent ID: confirm holdsAgentId(your wallet) is true on the
-   SPACE ID registry. If false, the wallet cannot mint — stop.
+   NFT contract. If false, the wallet cannot mint — stop.
 3. Read currentPrice() and show the exact amount in the wallet
    confirmation before signing. Never hardcode a price.
 4. Simulate the mint call first (eth_call) to confirm it would

@@ -30,10 +30,10 @@
 <main>
 <div class="wrap">
   <h1 data-i18n="mint.h1">ミント方法</h1>
-  <p><span class="badge">❀ <span data-live="status">準備中</span></span></p>
+  <p><span class="badge">❀ <span data-live="status">ミント受付中</span></span></p>
   <p><span data-i18n="stat.minted">ミント済み</span> <strong><span data-live="minted">–</span> / 3,333</strong></p>
   <p><button class="btn" id="copy-prompt-top" data-i18n="common.copy_prompt">プロンプトをコピー</button></p>
-  <p data-i18n-html="mint.intro"><strong>花見ブルームのコントラクトはまだデプロイされていません。</strong>ミントは<strong>エージェント専用</strong>で、デプロイ後に開始します。このサイトに人間用のミントボタンはありません。AIエージェントがあなたの代わりにミントします — ウォレットがSPACE IDエージェントIDを持っている場合に限ります。</p>
+  <p data-i18n-html="mint.intro"><strong>ミントは受付中です。</strong>ミントは<strong>エージェント専用</strong>です。このサイトに人間用のミントボタンはありません。AIエージェントがあなたの代わりにミントします — ウォレットがSPACE IDエージェントIDを持っている場合に限ります。</p>
   <p><span data-i18n="common.nft_contract">NFTコントラクト：</span> <code>0x9DFc130384A581e0156B8665e8e8c2100fb82621</code></p>
 
   <h2 data-i18n="mint.how">ミントの仕組み</h2>
@@ -78,14 +78,14 @@ Agent-only on BNB Chain (56). NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100f
   </ul>
 
   <h2 data-i18n="mint.foragents">エージェント向け</h2>
-  <p data-i18n-html="mint.foragents.p">機械可読の完全な説明：<a href="/agent-skill.md">agent-skill.md</a>と<a href="/llms.txt">llms.txt</a>。コントラクトは<strong>まだデプロイされていません</strong> — 上のアドレスはプレースホルダーです。</p>
+  <p data-i18n-html="mint.foragents.p">機械可読の完全な説明：<a href="/agent-skill.md">agent-skill.md</a>と<a href="/llms.txt">llms.txt</a>。コントラクトは<strong>デプロイ済み</strong>です — 上のアドレスが本番のコントラクトです。</p>
   <p><a class="btn" href="/" data-i18n="common.back_home">ホームに戻る</a></p>
 </div>
 </main>
 <footer>
   <p data-i18n="foot.tagline">花見ブルーム — BNBチェーン上の3,333体桜NFT。エージェント専用ミント。</p>
   <p><a href="/llms.txt">llms.txt</a> &middot; <a href="/agent-skill.md" data-i18n="foot.agent_skill">エージェントスキル</a> &middot; <a href="/gallery.html" data-i18n="nav.gallery">ギャラリー</a> &middot; <a href="/check.html" data-i18n="nav.check">チェック</a> &middot; <a href="/market.html" data-i18n="nav.market">マーケット</a> &middot; <a href="https://x.com/hanami_bloom">X</a> &middot; <a href="https://element.market/collections/hanami-bloom">Element</a></p>
-  <p data-i18n="foot.coming">ミントは準備中 — コントラクトはまだデプロイされていません。</p>
+  <p data-i18n="foot.coming">ミント受付中 — エージェント専用ミントが始まっています。</p>
 </footer>
 <script>
 (function(){
@@ -125,12 +125,12 @@ Agent-only on BNB Chain (56). NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100f
 </script>
 <script>
 /* HANAMI BLOOM Agent ID checker — reads holdsAgentId(address) on the
-   SPACE ID registry (0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F) via a
-   public BSC RPC. The check runs against the registry directly and
-   needs no wallet connection.
+   NFT contract (0x9DFc130384A581e0156B8665e8e8c2100fb82621) via a public BSC RPC. That is the same gate
+   mint() uses, so the answer matches what minting would do. Needs
+   no wallet connection.
    Fails soft: a failed read shows an error, never a guessed answer. */
 (function () {
-  var REGISTRY = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";
+  var NFT = "0x9DFc130384A581e0156B8665e8e8c2100fb82621"; // holdsAgentId is read on the NFT contract, not the registry
   var SEL_AGENT = "0x11213086"; // holdsAgentId(address)
   var RPCS = [
     "https://bsc-dataseed.binance.org/",
@@ -171,10 +171,10 @@ Agent-only on BNB Chain (56). NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100f
     }
     var addr = v.trim();
     r.innerHTML = '<div class="note"><p>' + t('agentcheck.checking', 'Checking…') + '</p></div>';
-    callFirstRpc(REGISTRY, SEL_AGENT + padAddress(addr)).then(function (hex) {
+    callFirstRpc(NFT, SEL_AGENT + padAddress(addr)).then(function (hex) {
       var holds = BigInt(hex) !== 0n;
       r.innerHTML = '<div class="note"><p>' + (holds
-        ? t('agentcheck.yes', 'This wallet holds a SPACE ID Agent ID — it can mint (once the contract is deployed and minting opens).')
+        ? t('agentcheck.yes', 'This wallet holds a SPACE ID Agent ID — it can mint now.')
         : t('agentcheck.no', 'This wallet does NOT hold a SPACE ID Agent ID — it cannot mint. Get an Agent ID first.')) + '</p></div>';
     }).catch(function () {
       r.innerHTML = '<div class="note"><p>' + t('agentcheck.fail', 'Could not reach the SPACE ID registry right now — please try again.') + '</p></div>';
