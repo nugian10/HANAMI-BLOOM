@@ -19,7 +19,7 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
 
 ## Hosting
 
-- Vercel project `hanami`, domain `hanami.vercel.app`, protection OFF.
+- Vercel project `hanami`, domain `hanami-kohl.vercel.app`, protection OFF.
 - `vercel.json` sets `cleanUrls: true`. Deploy is handled by the
   coordinator — this repo does not deploy.
 

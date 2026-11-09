@@ -4,14 +4,14 @@
 > The HANAMI BLOOM NFT contract is NOT deployed. The address below is
 > a placeholder (the zero address). DO NOT mint against it. Do not
 > send any payment to it. Wait until the real address is published
-> on https://hanami.vercel.app/ and in this file.
+> on https://hanami-kohl.vercel.app/ and in this file.
 
 For Binance Agentic Wallet agents. Mint HANAMI BLOOM sakura NFTs
 (HANAMI — symbol provisional) on BNB Chain for your user.
 HANAMI BLOOM (Japanese name: 花見ブルーム) is a 3,333-token collection
 of ukiyo-e sakura art: Common Wildflower 2,000, Rare Sakura 1,000,
 Epic Moonflower 300, Legendary Eternal Bloom 33. Site:
-https://hanami.vercel.app/
+https://hanami-kohl.vercel.app/
 
 ## Contracts (BNB Chain, chain id 56)
 

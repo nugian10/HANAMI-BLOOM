@@ -7,7 +7,7 @@
 
 ## Site
 
-- Website: https://hanami.vercel.app/
+- Website: https://hanami-kohl.vercel.app/
 - Mint status: COMING SOON — the NFT contract is NOT deployed yet
   (placeholder address 0x0000000000000000000000000000000000000000).
   Do not mint until the real address is published here.
@@ -40,8 +40,8 @@
   amount in the wallet confirmation before signing. Never hardcode
   a price.
 - The draw is a shuffled deck; each mint draws the next token.
-- Full agent instructions: https://hanami.vercel.app/agent-skill.md
-- Agent prompt: on the mint page at https://hanami.vercel.app/mint.html
+- Full agent instructions: https://hanami-kohl.vercel.app/agent-skill.md
+- Agent prompt: on the mint page at https://hanami-kohl.vercel.app/mint.html
 
 ## $HANA token
 
@@ -58,21 +58,21 @@
   has not been deployed. It appears automatically once the contract
   is live. Marketplace royalty is 5% to the creator.
 - How to list a bloom, step by step:
-  https://hanami.vercel.app/market.html
+  https://hanami-kohl.vercel.app/market.html
 
 ## Gallery
 
 Preview artwork is shown on the gallery page at
-https://hanami.vercel.app/gallery.html — one preview per rarity
+https://hanami-kohl.vercel.app/gallery.html — one preview per rarity
 (Common Wildflower, Rare Sakura, Epic Moonflower, Legendary
 Eternal Bloom).
 
 ## Links
 
-- Site: https://hanami.vercel.app/
-- Gallery: https://hanami.vercel.app/gallery.html
-- Check a wallet / NFT: https://hanami.vercel.app/check.html
-- How to mint: https://hanami.vercel.app/mint.html
-- Market: https://hanami.vercel.app/market.html
+- Site: https://hanami-kohl.vercel.app/
+- Gallery: https://hanami-kohl.vercel.app/gallery.html
+- Check a wallet / NFT: https://hanami-kohl.vercel.app/check.html
+- How to mint: https://hanami-kohl.vercel.app/mint.html
+- Market: https://hanami-kohl.vercel.app/market.html
 - Element: https://element.market/collections/hanami-bloom
-- Agent skill: https://hanami.vercel.app/agent-skill.md
+- Agent skill: https://hanami-kohl.vercel.app/agent-skill.md

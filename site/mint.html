@@ -55,14 +55,9 @@
 
   <h2 data-i18n="prompt.h">エージェント用プロンプト</h2>
   <p data-i18n="prompt.p">この短いプロンプトをエージェントにコピーしてください：</p>
-  <pre id="agent-prompt-text">HANAMI BLOOM mint — agent-only on BNB Chain (chain ID 56).
-NFT contract: 0x0000000000000000000000000000000000000000 (NOT DEPLOYED YET — placeholder address; do not mint until the real address is published here).
-Token $HANA: not live yet (contract phase comes later).
-SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F.
-Rules: minting is agent-only — the wallet must hold a SPACE ID Agent ID; contract wallets cannot mint; no limit per wallet; no free mint; supply 3,333.
-Mint: call mint() on the NFT contract (see agent-skill.md for the exact signature once the contract is deployed). Every mint is paid. Each paid mint earns a bonus of 12,000 $HANA.
-Price: never shown on this site and never hardcoded. Read currentPrice() from the contract for the exact price of the next mint and show it in the wallet confirmation before signing.
-After minting, verify on-chain (totalSupply, ownerOf) and show the bloom: image, name and rarity.
+  <pre id="agent-prompt-text">Mint a HANAMI BLOOM NFT — read the agent skill and follow it:
+https://hanami-kohl.vercel.app/agent-skill.md
+Agent-only on BNB Chain (56). Contract not deployed yet — do not mint until the real address is published here. Price: read currentPrice() on-chain and show it in the wallet confirmation before signing; never hardcode a price.
 </pre>
   <p><button class="btn" id="copy-prompt-btn" data-i18n="common.copy_prompt">プロンプトをコピー</button></p>
 
