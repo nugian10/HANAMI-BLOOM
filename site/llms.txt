@@ -1,0 +1,78 @@
+# HANAMI BLOOM
+
+> A collection of 3,333 ukiyo-e sakura NFTs on BNB Smart Chain.
+> Japanese name: 花見ブルーム (hero/titles: 花見 BLOOM).
+> Agent-only mint — there is no public mint button. No free mint,
+> no per-wallet limit.
+
+## Site
+
+- Website: https://hanami.vercel.app/
+- Mint status: COMING SOON — the NFT contract is NOT deployed yet
+  (placeholder address 0x0000000000000000000000000000000000000000).
+  Do not mint until the real address is published here.
+- Total supply: 3,333 NFTs (Common Wildflower 2,000; Rare Sakura 1,000;
+  Epic Moonflower 300; Legendary Eternal Bloom 33).
+- Blockchain: BNB Smart Chain Mainnet, Chain ID 56
+- Contract (HANAMI BLOOM NFT): not deployed yet — placeholder above.
+- $HANA token: not live yet (contract phase comes later).
+- SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
+- Owner: Bryan's My Wallet 0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097
+- Revenue: Binance Agentic Wallet 0x89c37649Ba3BAA9E1ce028612b7DE4e9c3a947B7
+  (mint payments are forwarded directly to it in the same transaction).
+- Marketplace royalty: 5% to the creator.
+- Base URI: https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/
+- Deck hash: 0x8fb75680350c5af5e33d74652c701b544fb64884d96df252cc20430af2a21c28
+  (from scripts/deck-info.json; rarity codes 0=Common, 1=Rare, 2=Epic,
+  3=Legendary; token N rarity = deck[N-1])
+- NFT symbol: provisional "HANAMI" until the contract is written.
+
+## Mint (for agents only)
+
+- Status: COMING SOON — the contract is not deployed yet.
+- Minting is agent-only by design. Only a wallet holding a SPACE ID
+  Agent ID can mint — the contract checks `holdsAgentId` on-chain
+  (registry 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F). Contract calls
+  are rejected. There is no owner allowlist.
+- No per-wallet limit. No free mint — every mint is paid.
+- Price: never shown on this site. Read `currentPrice()` on the
+  contract to get the exact price of the next mint. Show the exact
+  amount in the wallet confirmation before signing. Never hardcode
+  a price.
+- The draw is a shuffled deck; each mint draws the next token.
+- Full agent instructions: https://hanami.vercel.app/agent-skill.md
+- Agent prompt: on the mint page at https://hanami.vercel.app/mint.html
+
+## $HANA token
+
+- Every paid mint earns a bonus of 12,000 $HANA, auto-minted to the
+  minter by the NFT contract. No free mint exists, so every mint
+  earns the bonus. Full details (max supply, uses) follow in the
+  contract phase — $HANA itself is not live yet.
+
+## Market
+
+- Trading on Element once blooms are minted:
+  https://element.market/collections/hanami-bloom
+- The collection is not indexed on Element yet, because the contract
+  has not been deployed. It appears automatically once the contract
+  is live. Marketplace royalty is 5% to the creator.
+- How to list a bloom, step by step:
+  https://hanami.vercel.app/market.html
+
+## Gallery
+
+Preview artwork is shown on the gallery page at
+https://hanami.vercel.app/gallery.html — one preview per rarity
+(Common Wildflower, Rare Sakura, Epic Moonflower, Legendary
+Eternal Bloom).
+
+## Links
+
+- Site: https://hanami.vercel.app/
+- Gallery: https://hanami.vercel.app/gallery.html
+- Check a wallet / NFT: https://hanami.vercel.app/check.html
+- How to mint: https://hanami.vercel.app/mint.html
+- Market: https://hanami.vercel.app/market.html
+- Element: https://element.market/collections/hanami-bloom
+- Agent skill: https://hanami.vercel.app/agent-skill.md

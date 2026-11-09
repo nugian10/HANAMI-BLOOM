@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n-title="meta.title.market">マーケット — 花見 BLOOM</title>
+<meta name="description" content="花見ブルームの桜NFTをElementで取引。出品方法をステップごとに説明。マーケットロイヤリティはクリエイターへ5%です。" data-i18n-desc="meta.desc.market">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<script src="/config.js" defer></script>
+<script src="/i18n.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="logo" href="/">❀ 花見 BLOOM</a>
+    <nav id="site-nav" aria-label="Sections">
+      <a href="/#collection" data-i18n="nav.collection">コレクション</a>
+      <a href="/mint.html" data-i18n="nav.mint">ミント</a>
+      <a href="/#roadmap" data-i18n="nav.roadmap">ロードマップ</a>
+      <a href="/market.html" data-i18n="nav.market">マーケット</a>
+      <a href="/gallery.html" data-i18n="nav.gallery">ギャラリー</a>
+      <a href="/check.html" data-i18n="nav.check">チェック</a>
+      <a href="/#faq" data-i18n="nav.faq">FAQ</a>
+    </nav>
+<div class="lang-switch" role="group" aria-label="Language"><button type="button" data-lang="ja">日本語</button><button type="button" data-lang="en">EN</button></div>
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<main>
+<div class="wrap">
+  <h1 data-i18n="mkt.h1">マーケット</h1>
+  <p><span class="badge">❀ <span data-live="status">準備中</span></span></p>
+  <p data-i18n="mkt.intro">花がミントされたら、Elementで花見ブルームの花を取引できます。必要になれば、サイト内の本格的なマーケットが後から追加されるかもしれません。</p>
+  <p><a class="btn" href="https://element.market/collections/hanami-bloom" data-i18n="mkt.open_element">Elementでコレクションを開く</a></p>
+  <div class="note"><p data-i18n="mkt.element_note">コントラクトがまだデプロイされていないため、コレクションはElementにまだインデックスされていません。コントラクトが公開され、最初の花がミントされれば自動的に表示されます — 早める手動の手順はありません。</p></div>
+
+  <h2 data-i18n="mkt.how">Elementへの出品方法</h2>
+  <ol>
+    <li data-i18n="mkt.s1">上のリンクから花見ブルームのコレクションをElementで開き、花を持っているウォレットを接続します。</li>
+    <li data-i18n="mkt.s2">Elementのウォレット内で自分の花を探して開きます。</li>
+    <li data-i18n="mkt.s3">「List」/「Sell」を選び、希望価格を設定します。</li>
+    <li data-i18n="mkt.s4">ウォレットで出品を確認します — 売れるまで花はあなたのウォレットに残ります。</li>
+    <li data-i18n="mkt.s5">売れたら、販売価格から5%のクリエイターロイヤリティとElementの手数料を引いた金額を受け取ります。売れる前ならいつでも出品を取り消せます。</li>
+  </ol>
+
+  <h2 data-i18n="facts.royalty">マーケットロイヤリティ</h2>
+  <p data-i18n="mkt.royalty">マーケットロイヤリティはクリエイター（Agentic Wallet）へ5%です。ロイヤリティはコントラクトに設定され、二次販売のたびに適用されます。</p>
+  <p data-i18n="mkt.onsite">必要になれば、サイト内の本格的なマーケットが後から追加されるかもしれません — 今はElementがマーケットです。</p>
+  <p><a class="btn" href="/" data-i18n="common.back_home">ホームに戻る</a></p>
+</div>
+</main>
+<footer>
+  <p data-i18n="foot.tagline">花見ブルーム — BNBチェーン上の3,333体桜NFT。エージェント専用ミント。</p>
+  <p><a href="/llms.txt">llms.txt</a> &middot; <a href="/agent-skill.md" data-i18n="foot.agent_skill">エージェントスキル</a> &middot; <a href="/gallery.html" data-i18n="nav.gallery">ギャラリー</a> &middot; <a href="/check.html" data-i18n="nav.check">チェック</a> &middot; <a href="https://x.com/">X</a> &middot; <a href="https://element.market/collections/hanami-bloom">Element</a></p>
+  <p data-i18n="foot.coming">ミントは準備中 — コントラクトはまだデプロイされていません。</p>
+</footer>
+<script>
+(function(){
+  var btn=document.getElementById('menu-toggle');
+  var nav=document.getElementById('site-nav');
+  if(!btn||!nav)return;
+  function closeMenu(){btn.setAttribute('aria-expanded','false');nav.classList.remove('open');}
+  btn.addEventListener('click',function(){
+    var open=nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open?'true':'false');
+  });
+  nav.addEventListener('click',function(e){if(e.target.closest('a'))closeMenu();});
+  document.addEventListener('click',function(e){
+    if(!nav.classList.contains('open'))return;
+    if(e.target.closest('header'))return;
+    closeMenu();
+  });
+})();
+</script>
+<script src="/live-count.js" defer></script>
+</body>
+</html>
