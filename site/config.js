@@ -1,15 +1,19 @@
 /* HANAMI BLOOM site config — single source of truth for contract addresses.
    Japanese name of the project: 花見 (Hanami). English name: HANAMI BLOOM.
-   STATUS: LIVE — both contracts deployed and verified on BscScan
-   (10 Nov 2026). Mint is ACTIVE. No BNB prices anywhere:
-   the mint price is read from the contract (currentPrice) at mint time. */
+   STATUS: LIVE — NFT + market deployed 10 Nov 2026, mint ACTIVE.
+   NFT source verification on BscScan is pending; $HANA token verified.
+   No BNB prices anywhere: the mint price is read from the contract
+   (currentPrice) at mint time. */
 var HANAMI_CONFIG = {
   // BNB Chain mainnet.
   CHAIN_ID: 56,
-  // NFT contract — DEPLOYED + VERIFIED (v2, 10 Nov 2026), mint ACTIVE.
-  NFT_ADDRESS: "0x9DFc130384A581e0156B8665e8e8c2100fb82621",
-  // $HANA token — DEPLOYED + VERIFIED (v2, 10 Nov 2026).
+  // NFT contract — DEPLOYED (split contract: mintFree + mint, 10 Nov 2026),
+  // mint ACTIVE. Source verification on BscScan pending.
+  NFT_ADDRESS: "0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640",
+  // $HANA token — DEPLOYED + VERIFIED (10 Nov 2026).
   TOKEN_ADDRESS: "0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5",
+  // On-site market — DEPLOYED 10 Nov 2026.
+  MARKET_ADDRESS: "0x46897898625b71E2b1247515dfFfd2C51Dfacf7d",
   // Symbol (live on-chain).
   SYMBOL: "HANAMI",
   // SPACE ID Agent ID registry (agent-only gate).

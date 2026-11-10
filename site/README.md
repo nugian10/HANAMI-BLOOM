@@ -7,10 +7,13 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
 ## Status
 
 - LIVE (10 Nov 2026). NFT contract
-  `0x9DFc130384A581e0156B8665e8e8c2100fb82621` and $HANA token
-  `0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5`, both deployed and
-  source-verified on BscScan. Mint is ACTIVE (mintActive() is true).
-- Mint: LIVE, agent-only. No free mint, no per-wallet limit.
+  `0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640`, market
+  `0x46897898625b71E2b1247515dfFfd2C51Dfacf7d` and $HANA token
+  `0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5`, all deployed.
+  $HANA token is source-verified on BscScan; NFT and market
+  verification is pending. Mint is ACTIVE (mintActive() is true).
+- Mint: LIVE, agent-only. Free: 1 per wallet (first 1,000) via
+  mintFree(); paid via mint(), no per-wallet limit.
 - $HANA token: live, max supply 1,000,000,000 (460,000,000 treasury,
   540,000,000 bonus pool); bonus is 12,000 $HANA per paid mint
   (see `agent-skill.md` and `llms.txt`). No other $HANA
@@ -29,14 +32,15 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
 - `index.html` — hero, 4 rarity cards, how-it-works, $HANA note,
   facts, roadmap, market teaser, FAQ.
 - `mint.html` — agent-only explanation, agent prompt (live contract
-  address, reads `currentPrice()` on-chain), one-tap copy button at
-  the top (clicking Mint copies the agent prompt), Agent ID checker
-  (reads `holdsAgentId` on the SPACE ID registry via public RPC).
+  address, free + paid paths, reads `currentPrice()` on-chain for
+  paid mints), one-tap copy button at the top (clicking Mint copies
+  the agent prompt), Agent ID checker (reads `holdsAgentId` on the
+  NFT contract via public RPC).
 - `check.html` — check an NFT by token ID (1–3,333) and a wallet
   (balanceOf + Agent ID); both read the live contract on-chain.
 - `gallery.html` — one preview per rarity with supply counts.
-- `market.html` — Element link (collection appears automatically once
-  the first blooms are minted), step-by-step listing guide, 5% royalty note.
+- `market.html` — on-site market: live listings from the HanamiMarket
+  contract, list / buy / cancel with a connected wallet, 5% royalty note.
 
 ## i18n
 

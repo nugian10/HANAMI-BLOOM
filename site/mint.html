@@ -34,14 +34,14 @@
   <p><span data-i18n="stat.minted">ミント済み</span> <strong><span data-live="minted">–</span> / 3,333</strong></p>
   <p><button class="btn" id="copy-prompt-top" data-i18n="common.copy_prompt">プロンプトをコピー</button></p>
   <p data-i18n-html="mint.intro"><strong>ミントは受付中です。</strong>ミントは<strong>エージェント専用</strong>です。このサイトに人間用のミントボタンはありません。AIエージェントがあなたの代わりにミントします — ウォレットがSPACE IDエージェントIDを持っている場合に限ります。</p>
-  <p><span data-i18n="common.nft_contract">NFTコントラクト：</span> <code>0x9DFc130384A581e0156B8665e8e8c2100fb82621</code></p>
+  <p><span data-i18n="common.nft_contract">NFTコントラクト：</span> <code>0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640</code></p>
 
   <h2 data-i18n="mint.how">ミントの仕組み</h2>
   <ul>
     <li data-i18n-html="mint.li1">BNBチェーン上のウォレットに<strong>SPACE IDエージェントID</strong>が紐付いている必要があります。</li>
     <li data-i18n-html="mint.li2">コントラクトを呼び出せるAIエージェントが必要です。</li>
-    <li data-i18n-html="mint.li3">1ウォレットあたりの<strong>上限はありません</strong> — 好きなだけミントできます。</li>
-    <li data-i18n-html="mint.li4"><strong>無料ミントはありません</strong> — すべてのミントは有料です。</li>
+    <li data-i18n-html="mint.li3">有料ミントに<strong>上限はありません</strong> — 好きなだけミントできます。</li>
+    <li data-i18n-html="mint.li4"><strong>無料ミントは1ウォレットにつき1回</strong>（最初の1,000回まで） — 有料ミントとは別です。</li>
     <li data-i18n-html="mint.li5">正確な価格はミント時に常にコントラクトから読み取られ、署名前にウォレットの確認画面に表示されます。価格がこのサイトに固定の数字として表示されることはありません。</li>
   </ul>
 
@@ -49,8 +49,8 @@
   <ol>
     <li data-i18n-html="mint.f1">下のプロンプトをエージェントに渡すか、<a href="/agent-skill.md">agent-skill.md</a>を指し示します。</li>
     <li data-i18n-html="mint.f2">エージェントがコントラクトを確認：ミントは受付中で、ウォレットはエージェントIDを持っています。</li>
-    <li data-i18n-html="mint.f3">エージェントが<code>currentPrice()</code>でコントラクトからミントの正確な価格を読み取り、署名前にウォレットの確認画面に表示します。</li>
-    <li data-i18n-html="mint.f4">あなたが確認します。エージェントがミント関数を呼び出します — このサイトに一般公開のミントボタンはありません。</li>
+    <li data-i18n-html="mint.f3">無料ミントの場合、エージェントは<code>mintFree()</code>を呼びます — 支払いはありません。有料ミントの場合、エージェントが<code>currentPrice()</code>でコントラクトから正確な価格を読み取り、署名前にウォレットの確認画面に表示します。</li>
+    <li data-i18n-html="mint.f4">あなたが確認します。エージェントは<code>mintFree()</code>または<code>mint()</code>を呼び出します — このサイトに一般公開のミントボタンはありません。</li>
     <li data-i18n-html="mint.f5">エージェントはミントをオンチェーンで確認し、あなたの花を表示します：画像、名前、レアリティ。</li>
   </ol>
 
@@ -58,7 +58,7 @@
   <p data-i18n="prompt.p">この短いプロンプトをエージェントにコピーしてください：</p>
   <pre id="agent-prompt-text">Mint a HANAMI BLOOM NFT — read the agent skill and follow it:
 https://hanami-kohl.vercel.app/agent-skill.md
-Agent-only on BNB Chain (56). NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100fb82621 — mint is LIVE. Price: read currentPrice() on-chain and show it in the wallet confirmation before signing; never hardcode a price.
+Agent-only on BNB Chain (56). NFT contract: 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640 — mint is LIVE. Two mints, separate: mintFree() is free (1 per wallet, first 1,000); mint() is paid — read currentPrice() on-chain and show it in the wallet confirmation before signing; never hardcode a price.
 </pre>
   <p><button class="btn" id="copy-prompt-btn" data-i18n="common.copy_prompt">プロンプトをコピー</button></p>
 
@@ -74,7 +74,7 @@ Agent-only on BNB Chain (56). NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100f
   <h2 data-i18n="mint.after">ミントした後</h2>
   <ul>
     <li data-i18n-html="mint.a1"><a href="/check.html">チェックページ</a>であなたの花を確認しましょう。</li>
-    <li data-i18n-html="mint.a2"><a href="/market.html">マーケットページ</a>（Element）であなたの花を取引しましょう。</li>
+    <li data-i18n-html="mint.a2"><a href="/market.html">マーケットページ</a>であなたの花を取引しましょう。</li>
   </ul>
 
   <h2 data-i18n="mint.foragents">エージェント向け</h2>
@@ -125,12 +125,12 @@ Agent-only on BNB Chain (56). NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100f
 </script>
 <script>
 /* HANAMI BLOOM Agent ID checker — reads holdsAgentId(address) on the
-   NFT contract (0x9DFc130384A581e0156B8665e8e8c2100fb82621) via a public BSC RPC. That is the same gate
-   mint() uses, so the answer matches what minting would do. Needs
+   NFT contract (0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640) via a public BSC RPC. That is the same gate
+   mint() and mintFree() use, so the answer matches what minting would do. Needs
    no wallet connection.
    Fails soft: a failed read shows an error, never a guessed answer. */
 (function () {
-  var NFT = "0x9DFc130384A581e0156B8665e8e8c2100fb82621"; // holdsAgentId is read on the NFT contract, not the registry
+  var NFT = "0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640"; // holdsAgentId is read on the NFT contract, not the registry
   var SEL_AGENT = "0x11213086"; // holdsAgentId(address)
   var RPCS = [
     "https://bsc-dataseed.binance.org/",

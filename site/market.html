@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-i18n-title="meta.title.market">マーケット — 花見 BLOOM</title>
-<meta name="description" content="花見ブルームの桜NFTをElementで取引。出品方法をステップごとに説明。マーケットロイヤリティはクリエイターへ5%です。" data-i18n-desc="meta.desc.market">
+<meta name="description" content="花見ブルームの桜NFTをサイト内マーケットで取引。出品方法をステップごとに説明。マーケットロイヤリティはクリエイターへ5%です。" data-i18n-desc="meta.desc.market">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/style.css">
 <script src="/config.js" defer></script>
@@ -31,22 +31,34 @@
 <div class="wrap">
   <h1 data-i18n="mkt.h1">マーケット</h1>
   <p><span class="badge">❀ <span data-live="status">ミント受付中</span></span></p>
-  <p data-i18n="mkt.intro">花がミントされたら、Elementで花見ブルームの花を取引できます。必要になれば、サイト内の本格的なマーケットが後から追加されるかもしれません。</p>
-  <p><a class="btn" href="https://element.market/collections/hanami-bloom" data-i18n="mkt.open_element">Elementでコレクションを開く</a></p>
-  <div class="note"><p data-i18n="mkt.element_note">コレクションは最初の花がミントされればElementに自動的に表示されます — 早める手動の手順はありません。</p></div>
+  <p data-i18n="mkt.intro">花見ブルームの花をサイト内マーケットで取引できます — 出品、購入、出品取り消し。</p>
+  <p data-i18n="mkt.onsite">ここが花見ブルームのマーケットです — 出品はBNBチェーン上のマーケットコントラクトに記録されます。</p>
 
-  <h2 data-i18n="mkt.how">Elementへの出品方法</h2>
+  <h2 data-i18n="mkt.how">サイト内マーケットの使い方</h2>
   <ol>
-    <li data-i18n="mkt.s1">上のリンクから花見ブルームのコレクションをElementで開き、花を持っているウォレットを接続します。</li>
-    <li data-i18n="mkt.s2">Elementのウォレット内で自分の花を探して開きます。</li>
-    <li data-i18n="mkt.s3">「List」/「Sell」を選び、希望価格を設定します。</li>
-    <li data-i18n="mkt.s4">ウォレットで出品を確認します — 売れるまで花はあなたのウォレットに残ります。</li>
-    <li data-i18n="mkt.s5">売れたら、販売価格から5%のクリエイターロイヤリティとElementの手数料を引いた金額を受け取ります。売れる前ならいつでも出品を取り消せます。</li>
+    <li data-i18n="mkt.s1">花を持っているウォレット（または購入用のウォレット）を接続します。</li>
+    <li data-i18n="mkt.s2">出品するには、トークン番号と希望価格を入力し、マーケットコントラクトを承認して出品します — 売れるか取り消すまで、花はマーケットコントラクトに預けられます。</li>
+    <li data-i18n="mkt.s3">購入するには、出品を選び、ウォレットで正確な価格を確認します — 花はすぐにあなたのものになります。</li>
+    <li data-i18n="mkt.s4">出品が売れると、売り手は価格の95%を受け取り、クリエイターは5%のロイヤリティを受け取ります。</li>
+    <li data-i18n="mkt.s5">売れる前ならいつでも自分の出品を取り消せます — 花はあなたのウォレットに戻ります。</li>
   </ol>
+
+  <h2 data-i18n="mkt.listings">出品一覧</h2>
+  <p><button class="btn" id="connect-btn" type="button" data-i18n="mkt.connect">ウォレットを接続</button> <span id="wallet-status"></span></p>
+  <div id="listings"><p data-i18n="mkt.loading">出品を読み込み中…</p></div>
+
+  <h2 data-i18n="mkt.list_title">あなたの花を出品</h2>
+  <form onsubmit="return listBloom(event)">
+    <label for="list-token" data-i18n="mkt.token_label">トークン番号</label>
+    <input type="text" id="list-token" placeholder="1" autocomplete="off" spellcheck="false">
+    <label for="list-price" data-i18n="mkt.price_label">希望価格（BNB）</label>
+    <input type="text" id="list-price" placeholder="0.01" autocomplete="off" spellcheck="false">
+    <p><button class="btn" type="submit" data-i18n="mkt.list_btn">この花を出品</button></p>
+  </form>
+  <div class="result" id="list-result"></div>
 
   <h2 data-i18n="facts.royalty">マーケットロイヤリティ</h2>
   <p data-i18n="mkt.royalty">マーケットロイヤリティはクリエイター（Agentic Wallet）へ5%です。ロイヤリティはコントラクトに設定され、二次販売のたびに適用されます。</p>
-  <p data-i18n="mkt.onsite">必要になれば、サイト内の本格的なマーケットが後から追加されるかもしれません — 今はElementがマーケットです。</p>
   <p><a class="btn" href="/" data-i18n="common.back_home">ホームに戻る</a></p>
 </div>
 </main>
@@ -71,6 +83,285 @@
     if(e.target.closest('header'))return;
     closeMenu();
   });
+})();
+</script>
+<script>
+/* HANAMI BLOOM on-site market — reads live listings from the
+   HanamiMarket contract via a public BSC RPC and sends list / buy /
+   cancel transactions through the visitor's own browser wallet
+   (window.ethereum). No private key or seed phrase is ever asked for
+   here; the wallet signs each transaction after the visitor clicks.
+   Reads fail soft (a message, never a guessed listing). Listing
+   prices are set by sellers — this page never shows a mint price. */
+(function () {
+  var MARKET = "0x46897898625b71E2b1247515dfFfd2C51Dfacf7d";
+  var NFT = "0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640";
+  var BASE_URI = "https://raw.githubusercontent.com/nugian10/HANAMI-BLOOM/main/collection/metadata/";
+  var RPCS = [
+    "https://bsc-dataseed.binance.org/",
+    "https://bsc-dataseed1.defibit.io/",
+    "https://bsc-dataseed1.ninicoin.io/"
+  ];
+  var SEL_COUNT = "0xa9b07c26";   // listingCount()
+  var SEL_GET = "0x107a274a";     // getListing(uint256)
+  var SEL_OWNER = "0x6352211e";   // ownerOf(uint256)
+  var SEL_LIST = "0x50fd7367";    // list(uint256,uint256)
+  var SEL_BUY = "0xd96a094a";     // buy(uint256)
+  var SEL_CANCEL = "0x40e58ee5";  // cancel(uint256)
+  var SEL_APPROVE = "0x095ea7b3"; // approve(address,uint256)
+  var CHAIN_ID = "0x38"; // BNB Chain mainnet (56)
+
+  var wallet = null; // connected address, lowercase
+
+  function t(k, fb, vars) {
+    if (window.HANAMI_T) return window.HANAMI_T(k, vars);
+    var s = fb;
+    if (vars) for (var n in vars) s = s.split("{" + n + "}").join(String(vars[n]));
+    return s;
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function padAddress(addr) {
+    return "000000000000000000000000" + addr.slice(2).toLowerCase();
+  }
+  function padUint(n) {
+    return BigInt(n).toString(16).padStart(64, "0");
+  }
+  function parseBnb(str) {
+    // "0.01" -> 10000000000000000n. String math only, no floats.
+    var m = /^(\d+)(?:\.(\d+))?$/.exec(str.trim());
+    if (!m) return null;
+    var frac = (m[2] || "").padEnd(18, "0").slice(0, 18);
+    var wei = BigInt((m[1] === "" ? "0" : m[1]) + frac);
+    return wei > 0n ? wei : null;
+  }
+  function formatBnb(wei) {
+    var w = BigInt(wei);
+    var whole = w / 1000000000000000000n;
+    var frac = (w % 1000000000000000000n).toString().padStart(18, "0").slice(0, 6).replace(/0+$/, "");
+    return frac ? whole.toString() + "." + frac : whole.toString();
+  }
+  function shortAddr(a) {
+    return a.slice(0, 6) + "…" + a.slice(-4);
+  }
+  function callRpc(url, to, data) {
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "eth_call", params: [{ to: to, data: data }, "latest"], id: 1 })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || typeof j.result !== "string") throw new Error("bad rpc result");
+      return j.result;
+    });
+  }
+  function callFirstRpc(to, data) {
+    var chain = Promise.reject(new Error("no rpc"));
+    RPCS.forEach(function (url) { chain = chain.catch(function () { return callRpc(url, to, data); }); });
+    return chain;
+  }
+  function decodeListing(hex) {
+    // getListing returns (id, seller, tokenId, price, active) — 5 slots.
+    var body = hex.slice(2);
+    if (body.length < 320) throw new Error("short listing");
+    return {
+      id: BigInt("0x" + body.slice(0, 64)),
+      seller: "0x" + body.slice(64 + 24, 128),
+      tokenId: BigInt("0x" + body.slice(128, 192)),
+      price: BigInt("0x" + body.slice(192, 256)),
+      active: BigInt("0x" + body.slice(256, 320)) !== 0n
+    };
+  }
+  function note(html) {
+    return '<div class="note">' + html + "</div>";
+  }
+
+  function renderListings(listings) {
+    var box = document.getElementById("listings");
+    var actives = listings.filter(function (l) { return l.active; });
+    if (!actives.length) {
+      box.innerHTML = note("<p>" + esc(t("mkt.no_listings", "No live listings right now — check back after the first blooms are minted.")) + "</p>");
+      return;
+    }
+    box.innerHTML = "";
+    actives.forEach(function (l) {
+      var card = document.createElement("div");
+      card.className = "note";
+      var title = document.createElement("p");
+      var b = document.createElement("strong");
+      b.textContent = "HANAMI BLOOM #" + l.tokenId.toString();
+      title.appendChild(b);
+      card.appendChild(title);
+      var meta = document.createElement("p");
+      meta.textContent = t("mkt.token", "Token") + " #" + l.tokenId.toString() +
+        " · " + t("mkt.price", "Price") + " " + formatBnb(l.price) + " BNB · " +
+        t("mkt.seller", "Seller") + " " + shortAddr(l.seller);
+      card.appendChild(meta);
+      var btn = document.createElement("button");
+      btn.className = "btn";
+      btn.type = "button";
+      var mine = wallet && l.seller.toLowerCase() === wallet;
+      btn.textContent = mine
+        ? t("mkt.cancel_btn", "Cancel listing")
+        : t("mkt.buy_btn", "Buy");
+      btn.addEventListener("click", function () {
+        if (mine) cancelListing(l.id, btn);
+        else buyListing(l, btn);
+      });
+      card.appendChild(btn);
+      if (mine) {
+        var yours = document.createElement("p");
+        yours.textContent = t("mkt.yours", "Your listing");
+        card.appendChild(yours);
+      }
+      box.appendChild(card);
+      // Fill in the bloom name + image from its metadata (best effort).
+      fetch(BASE_URI + l.tokenId.toString() + ".json").then(function (resp) {
+        if (!resp.ok) throw new Error("metadata fetch failed");
+        return resp.json();
+      }).then(function (m) {
+        if (m && m.name) b.textContent = m.name;
+        if (m && m.image) {
+          var img = document.createElement("img");
+          img.src = m.image;
+          img.alt = m.name || ("HANAMI BLOOM #" + l.tokenId.toString());
+          img.style.maxWidth = "160px";
+          img.style.margin = "10px auto";
+          card.insertBefore(img, meta);
+        }
+      }).catch(function () { /* keep the token number, no image */ });
+    });
+  }
+
+  function refreshListings() {
+    var box = document.getElementById("listings");
+    box.innerHTML = "<p>" + esc(t("mkt.loading", "Loading listings…")) + "</p>";
+    callFirstRpc(MARKET, SEL_COUNT).then(function (hex) {
+      var count = Number(BigInt(hex));
+      if (!count) { renderListings([]); return; }
+      // Newest first, capped so the page stays responsive.
+      var ids = [];
+      for (var i = count; i >= 1 && ids.length < 100; i--) ids.push(i);
+      var jobs = ids.map(function (id) {
+        return callFirstRpc(MARKET, SEL_GET + padUint(id))
+          .then(decodeListing).catch(function () { return null; });
+      });
+      return Promise.all(jobs).then(function (rows) {
+        renderListings(rows.filter(function (r) { return r !== null; }));
+      });
+    }).catch(function () {
+      box.innerHTML = note("<p>" + esc(t("check.err_chain", "Could not reach BNB Chain right now — please try again. No numbers were guessed.")) + "</p>");
+    });
+  }
+
+  function needWallet() {
+    if (!window.ethereum) {
+      alert(t("mkt.no_wallet", "No wallet found in this browser — open this page in a wallet browser (for example the Binance app browser)."));
+      return false;
+    }
+    if (!wallet) {
+      alert(t("mkt.need_wallet", "Connect a wallet first."));
+      return false;
+    }
+    return true;
+  }
+  function sendTx(to, data, value) {
+    var params = { from: wallet, to: to, data: data };
+    if (value) params.value = "0x" + BigInt(value).toString(16);
+    return window.ethereum.request({ method: "eth_sendTransaction", params: [params] });
+  }
+  function afterTx() {
+    setTimeout(refreshListings, 8000);
+  }
+
+  function buyListing(l, btn) {
+    if (!needWallet()) return;
+    btn.disabled = true;
+    btn.textContent = t("mkt.waiting", "Confirm the transaction in your wallet…");
+    sendTx(MARKET, SEL_BUY + padUint(l.id), l.price).then(function () {
+      btn.textContent = t("mkt.buy_ok", "Bought! The bloom is now yours.");
+      afterTx();
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = t("mkt.buy_btn", "Buy");
+      alert(t("mkt.buy_fail", "Purchase failed — please try again."));
+    });
+  }
+  function cancelListing(id, btn) {
+    if (!needWallet()) return;
+    btn.disabled = true;
+    btn.textContent = t("mkt.waiting", "Confirm the transaction in your wallet…");
+    sendTx(MARKET, SEL_CANCEL + padUint(id), null).then(function () {
+      btn.textContent = t("mkt.cancel_ok", "Listing cancelled — the bloom is back in your wallet.");
+      afterTx();
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = t("mkt.cancel_btn", "Cancel listing");
+      alert(t("mkt.cancel_fail", "Cancel failed — please try again."));
+    });
+  }
+
+  window.listBloom = function (e) {
+    e.preventDefault();
+    var r = document.getElementById("list-result");
+    if (!needWallet()) return false;
+    var tokenStr = document.getElementById("list-token").value.trim();
+    var priceStr = document.getElementById("list-price").value.trim();
+    var n = parseInt(tokenStr, 10);
+    var price = parseBnb(priceStr);
+    if (!/^\d+$/.test(tokenStr) || n < 1 || n > 3333 || !price) {
+      r.innerHTML = note("<p>" + esc(t("check.err_token", "Please enter a token number from 1 to 3,333.")) + "</p>");
+      return false;
+    }
+    r.innerHTML = note("<p>" + esc(t("mkt.waiting", "Confirm the transaction in your wallet…")) + "</p>");
+    // The lister must own the token.
+    callFirstRpc(NFT, SEL_OWNER + padUint(n)).then(function (hex) {
+      var owner = "0x" + hex.slice(-40);
+      if (owner.toLowerCase() !== wallet) {
+        r.innerHTML = note("<p>" + esc(t("mkt.not_owner", "That wallet does not own this token.")) + "</p>");
+        return null;
+      }
+      // Approve the market contract for this token, then list.
+      r.innerHTML = note("<p>" + esc(t("mkt.approving", "Approving the market contract… confirm in your wallet.")) + "</p>");
+      return sendTx(NFT, SEL_APPROVE + padAddress(MARKET) + padUint(n), null)
+        .then(function () { return sendTx(MARKET, SEL_LIST + padUint(n) + padUint(price), null); });
+    }).then(function (tx) {
+      if (!tx) return;
+      r.innerHTML = note("<p>" + esc(t("mkt.list_ok", "Listed! Your bloom is now on the market.")) + "</p>");
+      afterTx();
+    }).catch(function () {
+      r.innerHTML = note("<p>" + esc(t("mkt.list_fail", "Listing failed — please try again.")) + "</p>");
+    });
+    return false;
+  };
+
+  document.getElementById("connect-btn").addEventListener("click", function () {
+    var st = document.getElementById("wallet-status");
+    if (!window.ethereum) {
+      st.textContent = t("mkt.no_wallet", "No wallet found in this browser — open this page in a wallet browser (for example the Binance app browser).");
+      return;
+    }
+    window.ethereum.request({ method: "eth_requestAccounts" }).then(function (accounts) {
+      if (!accounts || !accounts.length) return;
+      wallet = accounts[0].toLowerCase();
+      return window.ethereum.request({ method: "eth_chainId" }).then(function (chainId) {
+        if (chainId !== CHAIN_ID) {
+          return window.ethereum.request({
+            method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID }]
+          }).catch(function () {
+            st.textContent = t("mkt.wrong_chain", "Please switch your wallet to BNB Chain (56) and try again.");
+            wallet = null;
+          });
+        }
+      }).then(function () {
+        if (!wallet) return;
+        st.textContent = t("mkt.connected", "Connected: {addr}", { addr: shortAddr(accounts[0]) });
+        refreshListings();
+      });
+    }).catch(function () { /* user declined — leave the button as is */ });
+  });
+
+  refreshListings();
 })();
 </script>
 <script src="/live-count.js" defer></script>

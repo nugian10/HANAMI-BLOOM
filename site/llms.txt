@@ -2,19 +2,19 @@
 
 > A collection of 3,333 ukiyo-e sakura NFTs on BNB Smart Chain.
 > Japanese name: 花見ブルーム (hero/titles: 花見 BLOOM).
-> Agent-only mint — there is no public mint button. No free mint,
-> no per-wallet limit.
+> Agent-only mint — there is no public mint button. Free mint: one per
+> wallet, first 1,000. Paid mints: no per-wallet limit.
 
 ## Site
 
 - Website: https://hanami-kohl.vercel.app/
 - Mint status: LIVE — minting is open (mintActive() is true).
-  NFT contract: 0x9DFc130384A581e0156B8665e8e8c2100fb82621
-  (source-verified on BscScan).
+  NFT contract: 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640
+  (source verification on BscScan pending).
 - Total supply: 3,333 NFTs (Common Wildflower 2,000; Rare Sakura 1,000;
   Epic Moonflower 300; Legendary Eternal Bloom 33).
 - Blockchain: BNB Smart Chain Mainnet, Chain ID 56
-- Contract (HANAMI BLOOM NFT): 0x9DFc130384A581e0156B8665e8e8c2100fb82621 — deployed, source-verified on BscScan, mint is LIVE.
+- Contract (HANAMI BLOOM NFT): 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640 — deployed, mint is LIVE (source verification on BscScan pending).
 - $HANA token: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5 — live, max supply 1,000,000,000.
 - SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Owner: Bryan's My Wallet 0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097
@@ -34,11 +34,10 @@
   Agent ID can mint — the contract checks `holdsAgentId` on-chain
   (registry 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F). Contract calls
   are rejected. There is no owner allowlist.
-- No per-wallet limit. No free mint — every mint is paid.
-- Price: never shown on this site. Read `currentPrice()` on the
-  contract to get the exact price of the next mint. Show the exact
-  amount in the wallet confirmation before signing. Never hardcode
-  a price.
+- Free mint: `mintFree()`, one per wallet, first 1,000 free mints total. Paid mint: `mint()`, no per-wallet limit. The two are separate functions — paying never consumes the free mint.
+- Price: never shown on this site. For a paid mint, read `currentPrice()` on the
+  contract to get the exact price — show it in the wallet confirmation before
+  signing. A free mint sends no payment. Never hardcode a price.
 - The draw is a shuffled deck; each mint draws the next token.
 - Full agent instructions: https://hanami-kohl.vercel.app/agent-skill.md
 - Agent prompt: on the mint page at https://hanami-kohl.vercel.app/mint.html
@@ -46,16 +45,16 @@
 ## $HANA token
 
 - Every paid mint earns a bonus of 12,000 $HANA, auto-minted to the
-  minter by the NFT contract. No free mint exists, so every mint
-  earns the bonus. $HANA is live: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5,
+  minter by the NFT contract. Free mints earn no $HANA — only paid
+  mints earn the bonus. $HANA is live: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5,
   max supply 1,000,000,000 (460,000,000 treasury, 540,000,000 bonus pool).
 
 ## Market
 
-- Trading on Element once blooms are minted:
-  https://element.market/collections/hanami-bloom
-- The collection appears on Element automatically once the first
-  blooms are minted. Marketplace royalty is 5% to the creator.
+- Trading on the on-site market:
+  https://hanami-kohl.vercel.app/market.html — list a bloom, buy one,
+  or cancel a listing. Market contract: 0x46897898625b71E2b1247515dfFfd2C51Dfacf7d.
+  On every sale the seller receives 95% and the creator receives the 5% royalty.
 - How to list a bloom, step by step:
   https://hanami-kohl.vercel.app/market.html
 
@@ -73,6 +72,5 @@ Eternal Bloom).
 - Check a wallet / NFT: https://hanami-kohl.vercel.app/check.html
 - How to mint: https://hanami-kohl.vercel.app/mint.html
 - Market: https://hanami-kohl.vercel.app/market.html
-- Element: https://element.market/collections/hanami-bloom
 - Agent skill: https://hanami-kohl.vercel.app/agent-skill.md
 - X (official): https://x.com/hanami_bloom

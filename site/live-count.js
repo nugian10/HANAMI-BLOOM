@@ -1,6 +1,6 @@
 /* HANAMI BLOOM live counters — totalSupply + mintActive(), read from the
    NFT contract with client-side eth_call calls to a public BSC RPC.
-   STATUS: LIVE — contract deployed (v2, 10 Nov 2026), mint ACTIVE.
+   STATUS: LIVE — split contract deployed 10 Nov 2026 (free + paid), mint ACTIVE.
    The minted counter polls totalSupply() every 3 seconds (one BSC block)
    and the status reads mintActive() every 30 seconds.
    Counts only; never shows prices. Fails soft: shows a dash and retries. */
@@ -13,7 +13,7 @@
     if (vars) for (var n in vars) s = s.split("{" + n + "}").join(String(vars[n]));
     return s;
   }
-  var NFT = "0x9DFc130384A581e0156B8665e8e8c2100fb82621";
+  var NFT = "0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640";
   var NOT_DEPLOYED = /^0x0{40}$/.test(NFT);
   var RPCS = [
     "https://bsc-dataseed.binance.org/",

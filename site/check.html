@@ -80,12 +80,12 @@
 /* HANAMI BLOOM wallet + NFT checker — reads the NFT contract live via
    public BSC RPC, same fallback pattern as live-count.js. Counts only,
    never prices. A failed read shows a dash, never an invented number.
-   STATUS: LIVE — contract deployed (v2, 10 Nov 2026), mint ACTIVE.
+   STATUS: LIVE — split contract deployed 10 Nov 2026 (free + paid), mint ACTIVE.
    The checkers read live: balanceOf / holdsAgentId for wallets,
    ownerOf / tokenURI for tokens (tokenURI metadata is fetched and
    rendered). */
 (function () {
-  var NFT = "0x9DFc130384A581e0156B8665e8e8c2100fb82621";
+  var NFT = "0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640";
   function t(k, fb, vars) {
     if (window.HANAMI_T) return window.HANAMI_T(k, vars);
     var s = fb;
@@ -99,7 +99,7 @@
     "https://bsc-dataseed1.ninicoin.io/"
   ];
   var SEL_BALANCE = "0x70a08231"; // balanceOf(address)
-  var SEL_AGENT = "0x11213086"; // holdsAgentId(address) — on the NFT contract (the same gate mint() uses)
+  var SEL_AGENT = "0x11213086"; // holdsAgentId(address) — on the NFT contract (the same gate mint() and mintFree() use)
   var SEL_OWNER = "0x6352211e"; // ownerOf(uint256)
   var SEL_URI = "0xc87b56dd"; // tokenURI(uint256)
 
