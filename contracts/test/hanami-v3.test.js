@@ -3,11 +3,16 @@ const path = require("node:path");
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-// HanamiBloomNFTv3 tests — the rebuild Bryan confirmed 10 Nov 2026:
-//   first 1,000 mints FREE (max 1 free mint per wallet),
-//   every mint after that (or after a wallet used its free
-//   mint) is PAID at 0.0003 BNB. Free mints earn NO $HANA
-//   bonus; paid mints earn 12,000 $HANA as before.
+// HanamiBloomNFTv3 tests — the rebuild Bryan confirmed 10 Nov 2026,
+// with free and paid SEPARATED at his instruction (18:29 WIB):
+//   mintFree() — FREE, max 1 free mint per wallet, 1,000 total.
+//   mint()     — PAID only, flat 0.0003 BNB, no wallet cap.
+// One contract, one deck (3,333). A wallet may call mint()
+// any time — before or after its free mint — and paying never
+// consumes the free mint; using the free mint never blocks
+// paid mints. Free mints earn NO $HANA bonus; paid mints earn
+// 12,000 $HANA. currentPrice() is a constant (0.0003 BNB),
+// no longer caller-dependent.
 // The v2 contract (Hanami.test.js) is untouched; these tests
 // deploy a fresh v3 instance with the same deckHash, rarity
 // bitmap, baseURI and a fresh local HanaToken (the live v2
@@ -86,23 +91,22 @@ describe("HanamiBloomNFTv3 — constructor & config", function () {
     expect(amount).to.equal(ethers.parseEther("0.05"));
   });
 
-  it("priceFor / currentPrice are 0 for a wallet with its free mint unused", async function () {
+  it("currentPrice is the flat 0.0003 BNB for every caller (no longer caller-dependent)", async function () {
     const { nft, alice, bob } = await deployFixture();
     await nft.setMintActive(true);
-    expect(await nft.priceFor(alice.address)).to.equal(0);
-    expect(await nft.priceFor(bob.address)).to.equal(0);
-    expect(await nft.connect(alice).currentPrice()).to.equal(0);
-    expect(await nft.connect(bob).currentPrice()).to.equal(0);
+    expect(await nft.currentPrice()).to.equal(PRICE);
+    expect(await nft.connect(alice).currentPrice()).to.equal(PRICE);
+    expect(await nft.connect(bob).currentPrice()).to.equal(PRICE);
   });
 });
 
-describe("HanamiBloomNFTv3 — free mint", function () {
-  it("first mint per wallet is FREE: value 0, no payment, NO $HANA, freeMinted 1", async function () {
+describe("HanamiBloomNFTv3 — mintFree", function () {
+  it("first mintFree per wallet is FREE: value 0, no payment, NO $HANA, freeMinted 1", async function () {
     const { nft, token, mock, alice } = await deployFixture();
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
     const revBefore = await ethers.provider.getBalance(REVENUE);
-    const tx = await nft.connect(alice).mint({ value: 0 });
+    const tx = await nft.connect(alice).mintFree({ value: 0 });
     const receipt = await tx.wait();
     const minted = parseMinted(nft, receipt);
     expect(minted).to.not.equal(undefined);
@@ -127,29 +131,18 @@ describe("HanamiBloomNFTv3 — free mint", function () {
     expect(await nft.tokenURI(tokenId)).to.equal(`${BASE_URI}${tokenId}.json`);
   });
 
-  it("second mint from the same wallet while free allocation remains is PAID", async function () {
-    const { nft, token, mock, alice } = await deployFixture();
+  it("second mintFree from the same wallet reverts FreeMintAlreadyUsed", async function () {
+    const { nft, mock, alice } = await deployFixture();
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
-    await nft.connect(alice).mint({ value: 0 }); // free
+    await nft.connect(alice).mintFree({ value: 0 });
     expect(await nft.freeMinted()).to.equal(1);
-    // Value 0 now reverts: the free mint is used up for Alice.
-    await expect(nft.connect(alice).mint({ value: 0 }))
-      .to.be.revertedWithCustomError(nft, "IncorrectPayment")
-      .withArgs(PRICE, 0);
-    const revBefore = await ethers.provider.getBalance(REVENUE);
-    const tx = await nft.connect(alice).mint({ value: PRICE });
-    const receipt = await tx.wait();
-    const minted = parseMinted(nft, receipt);
-    expect(minted.args.free).to.equal(false);
-    expect(minted.args.price).to.equal(PRICE);
-    expect(await nft.totalSupply()).to.equal(2);
-    expect(await nft.freeMinted()).to.equal(1); // unchanged
-    expect(await nft.hasFreeMinted(alice.address)).to.equal(true);
-    expect(await nft.mintCount(alice.address)).to.equal(2);
-    expect(await ethers.provider.getBalance(REVENUE)).to.equal(revBefore + PRICE);
-    // Paid mint earns the 12,000 $HANA bonus.
-    expect(await token.balanceOf(alice.address)).to.equal(BONUS);
+    await expect(nft.connect(alice).mintFree({ value: 0 }))
+      .to.be.revertedWithCustomError(nft, "FreeMintAlreadyUsed");
+    await expect(nft.connect(alice).mintFree({ value: PRICE }))
+      .to.be.revertedWithCustomError(nft, "FreeMintAlreadyUsed");
+    expect(await nft.freeMinted()).to.equal(1);
+    expect(await nft.totalSupply()).to.equal(1);
   });
 
   it("a different wallet still gets its free mint after another wallet used theirs", async function () {
@@ -157,9 +150,8 @@ describe("HanamiBloomNFTv3 — free mint", function () {
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
     await giveAgentId(mock, bob);
-    await nft.connect(alice).mint({ value: 0 });
-    expect(await nft.priceFor(bob.address)).to.equal(0);
-    const tx = await nft.connect(bob).mint({ value: 0 });
+    await nft.connect(alice).mintFree({ value: 0 });
+    const tx = await nft.connect(bob).mintFree({ value: 0 });
     const receipt = await tx.wait();
     expect(parseMinted(nft, receipt).args.free).to.equal(true);
     expect(await nft.freeMinted()).to.equal(2);
@@ -172,7 +164,7 @@ describe("HanamiBloomNFTv3 — free mint", function () {
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
     const balBefore = await ethers.provider.getBalance(alice.address);
-    const tx = await nft.connect(alice).mint({ value: ethers.parseEther("0.001") });
+    const tx = await nft.connect(alice).mintFree({ value: ethers.parseEther("0.001") });
     const receipt = await tx.wait();
     const gasCost = receipt.gasUsed * receipt.gasPrice;
     const balAfter = await ethers.provider.getBalance(alice.address);
@@ -180,46 +172,120 @@ describe("HanamiBloomNFTv3 — free mint", function () {
     expect(await ethers.provider.getBalance(await nft.getAddress())).to.equal(0);
   });
 
-  it("priceFor / currentPrice flip to 0.0003 for a wallet after its free mint is used", async function () {
-    const { nft, mock, alice, bob } = await deployFixture();
+  it("mintFree reverts MintInactive before activation", async function () {
+    const { nft, mock, alice } = await deployFixture();
+    await giveAgentId(mock, alice);
+    await expect(nft.connect(alice).mintFree({ value: 0 })).to.be.revertedWithCustomError(nft, "MintInactive");
+  });
+
+  it("mintFree reverts NoAgentId without an Agent ID", async function () {
+    const { nft, alice } = await deployFixture();
+    await nft.setMintActive(true);
+    await expect(nft.connect(alice).mintFree({ value: 0 })).to.be.revertedWithCustomError(nft, "NoAgentId");
+  });
+
+  it("mintFree reverts NoContracts via MockGenericCaller", async function () {
+    const { nft, mock, alice } = await deployFixture();
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
-    await giveAgentId(mock, bob);
-    await nft.connect(alice).mint({ value: 0 });
-    expect(await nft.priceFor(alice.address)).to.equal(PRICE);
-    expect(await nft.connect(alice).currentPrice()).to.equal(PRICE);
-    // Bob still has his free mint: still 0 for him.
-    expect(await nft.priceFor(bob.address)).to.equal(0);
-    expect(await nft.connect(bob).currentPrice()).to.equal(0);
+    const Caller = await ethers.getContractFactory("MockGenericCaller");
+    const caller = await Caller.deploy();
+    await caller.waitForDeployment();
+    const data = nft.interface.encodeFunctionData("mintFree", []);
+    expect(await caller.tryCall.staticCall(await nft.getAddress(), data, { value: 0 })).to.equal(false);
+    await caller.tryCall(await nft.getAddress(), data, { value: 0 });
+    expect(await nft.totalSupply()).to.equal(0);
   });
 });
 
-describe("HanamiBloomNFTv3 — mint guards", function () {
-  it("mint reverts MintInactive before activation (free and paid alike)", async function () {
-    const { nft, mock, alice } = await deployFixture();
+describe("HanamiBloomNFTv3 — mint (paid)", function () {
+  it("paid mint works BEFORE the wallet's free mint is used — and the free mint stays available", async function () {
+    const { nft, token, mock, alice } = await deployFixture();
+    await nft.setMintActive(true);
     await giveAgentId(mock, alice);
-    await expect(nft.connect(alice).mint({ value: 0 })).to.be.revertedWithCustomError(nft, "MintInactive");
-    await expect(nft.connect(alice).mint({ value: PRICE })).to.be.revertedWithCustomError(nft, "MintInactive");
+    const revBefore = await ethers.provider.getBalance(REVENUE);
+    // Pay first: free mint must NOT be consumed by paying.
+    const tx = await nft.connect(alice).mint({ value: PRICE });
+    const receipt = await tx.wait();
+    const minted = parseMinted(nft, receipt);
+    expect(minted.args.free).to.equal(false);
+    expect(minted.args.price).to.equal(PRICE);
+    expect(await nft.totalSupply()).to.equal(1);
+    expect(await nft.freeMinted()).to.equal(0);
+    expect(await nft.hasFreeMinted(alice.address)).to.equal(false);
+    expect(await ethers.provider.getBalance(REVENUE)).to.equal(revBefore + PRICE);
+    expect(await token.balanceOf(alice.address)).to.equal(BONUS);
+    // The free mint is still there afterwards.
+    const tx2 = await nft.connect(alice).mintFree({ value: 0 });
+    const receipt2 = await tx2.wait();
+    expect(parseMinted(nft, receipt2).args.free).to.equal(true);
+    expect(await nft.freeMinted()).to.equal(1);
+    expect(await nft.hasFreeMinted(alice.address)).to.equal(true);
+    expect(await nft.totalSupply()).to.equal(2);
+    expect(await token.balanceOf(alice.address)).to.equal(BONUS); // no extra bonus for free
   });
 
-  it("mint reverts NoAgentId without an Agent ID on the free path too", async function () {
-    const { nft, alice } = await deployFixture();
+  it("paid mint after the free mint: 0.0003 to revenue, +12,000 $HANA, freeMinted unchanged", async function () {
+    const { nft, token, mock, alice } = await deployFixture();
     await nft.setMintActive(true);
-    await expect(nft.connect(alice).mint({ value: 0 })).to.be.revertedWithCustomError(nft, "NoAgentId");
-    await expect(nft.connect(alice).mint({ value: PRICE })).to.be.revertedWithCustomError(nft, "NoAgentId");
+    await giveAgentId(mock, alice);
+    await nft.connect(alice).mintFree({ value: 0 }); // free first
+    expect(await nft.freeMinted()).to.equal(1);
+    const revBefore = await ethers.provider.getBalance(REVENUE);
+    const tx = await nft.connect(alice).mint({ value: PRICE });
+    const receipt = await tx.wait();
+    const minted = parseMinted(nft, receipt);
+    expect(minted.args.free).to.equal(false);
+    expect(minted.args.price).to.equal(PRICE);
+    expect(await nft.totalSupply()).to.equal(2);
+    expect(await nft.freeMinted()).to.equal(1); // unchanged
+    expect(await nft.hasFreeMinted(alice.address)).to.equal(true);
+    expect(await nft.mintCount(alice.address)).to.equal(2);
+    expect(await ethers.provider.getBalance(REVENUE)).to.equal(revBefore + PRICE);
+    expect(await token.balanceOf(alice.address)).to.equal(BONUS);
   });
 
   it("paid mint reverts IncorrectPayment when underpaying", async function () {
     const { nft, mock, alice } = await deployFixture();
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
-    await nft.connect(alice).mint({ value: 0 }); // use up the free mint
     await expect(nft.connect(alice).mint({ value: PRICE - 1n }))
       .to.be.revertedWithCustomError(nft, "IncorrectPayment")
       .withArgs(PRICE, PRICE - 1n);
+    await expect(nft.connect(alice).mint({ value: 0 }))
+      .to.be.revertedWithCustomError(nft, "IncorrectPayment")
+      .withArgs(PRICE, 0);
+    expect(await nft.totalSupply()).to.equal(0);
   });
 
-  it("mint reverts NoContracts via MockGenericCaller", async function () {
+  it("overpayment on a paid mint is refunded in full", async function () {
+    const { nft, mock, alice } = await deployFixture();
+    await nft.setMintActive(true);
+    await giveAgentId(mock, alice);
+    const over = ethers.parseEther("0.001");
+    const balBefore = await ethers.provider.getBalance(alice.address);
+    const tx = await nft.connect(alice).mint({ value: over });
+    const receipt = await tx.wait();
+    const gasCost = receipt.gasUsed * receipt.gasPrice;
+    const balAfter = await ethers.provider.getBalance(alice.address);
+    expect(balBefore - balAfter).to.equal(PRICE + gasCost);
+    expect(await nft.totalSupply()).to.equal(1);
+    expect(await nft.freeMinted()).to.equal(0);
+  });
+
+  it("paid mint reverts MintInactive before activation", async function () {
+    const { nft, mock, alice } = await deployFixture();
+    await giveAgentId(mock, alice);
+    await expect(nft.connect(alice).mint({ value: PRICE })).to.be.revertedWithCustomError(nft, "MintInactive");
+  });
+
+  it("paid mint reverts NoAgentId without an Agent ID", async function () {
+    const { nft, alice } = await deployFixture();
+    await nft.setMintActive(true);
+    await expect(nft.connect(alice).mint({ value: PRICE })).to.be.revertedWithCustomError(nft, "NoAgentId");
+  });
+
+  it("paid mint reverts NoContracts via MockGenericCaller", async function () {
     const { nft, mock, alice } = await deployFixture();
     await nft.setMintActive(true);
     await giveAgentId(mock, alice);
@@ -231,21 +297,6 @@ describe("HanamiBloomNFTv3 — mint guards", function () {
     await caller.tryCall(await nft.getAddress(), data, { value: PRICE });
     expect(await nft.totalSupply()).to.equal(0);
   });
-
-  it("overpayment on a paid mint is refunded in full", async function () {
-    const { nft, mock, alice } = await deployFixture();
-    await nft.setMintActive(true);
-    await giveAgentId(mock, alice);
-    await nft.connect(alice).mint({ value: 0 }); // free first
-    const over = ethers.parseEther("0.001");
-    const balBefore = await ethers.provider.getBalance(alice.address);
-    const tx = await nft.connect(alice).mint({ value: over });
-    const receipt = await tx.wait();
-    const gasCost = receipt.gasUsed * receipt.gasPrice;
-    const balAfter = await ethers.provider.getBalance(alice.address);
-    expect(balBefore - balAfter).to.equal(PRICE + gasCost);
-    expect(await nft.totalSupply()).to.equal(2);
-  });
 });
 
 describe("HanamiBloomNFTv3 — deck & $HANA across mixed mints", function () {
@@ -256,7 +307,7 @@ describe("HanamiBloomNFTv3 — deck & $HANA across mixed mints", function () {
     const seen = new Set();
     // 3 free mints (one per wallet) + 3 paid mints (alice again x3).
     for (const w of [alice, bob, carol]) {
-      const receipt = await (await nft.connect(w).mint({ value: 0 })).wait();
+      const receipt = await (await nft.connect(w).mintFree({ value: 0 })).wait();
       const tokenId = Number(parseMinted(nft, receipt).args.tokenId);
       expect(seen.has(tokenId)).to.equal(false, `duplicate token ${tokenId}`);
       seen.add(tokenId);
@@ -285,7 +336,7 @@ describe("HanamiBloomNFTv3 — deck & $HANA across mixed mints", function () {
 });
 
 describe("HanamiBloomNFTv3 — free-cap boundary", function () {
-  it("free allocation exhausts at exactly 1000: the 1001st wallet must pay", async function () {
+  it("free allocation exhausts at exactly 1000: the 1001st wallet's mintFree reverts, paid mint still works", async function () {
     this.timeout(600000);
     const { nft } = await deployFixture();
     await nft.setMintActive(true);
@@ -298,17 +349,15 @@ describe("HanamiBloomNFTv3 — free-cap boundary", function () {
       wallets.push(w);
     }
     for (let i = 0; i < 1000; i++) {
-      await nft.connect(wallets[i]).mint({ value: 0 });
+      await nft.connect(wallets[i]).mintFree({ value: 0 });
     }
     expect(await nft.freeMinted()).to.equal(1000);
     expect(await nft.freeRemaining()).to.equal(0);
     expect(await nft.totalSupply()).to.equal(1000);
-    // The 1001st wallet has no free mint left: value 0 reverts.
-    await expect(nft.connect(wallets[1000]).mint({ value: 0 }))
-      .to.be.revertedWithCustomError(nft, "IncorrectPayment")
-      .withArgs(PRICE, 0);
-    expect(await nft.priceFor(wallets[1000].address)).to.equal(PRICE);
-    // Paying works and does not move freeMinted.
+    // The 1001st wallet has no free mint left: mintFree reverts.
+    await expect(nft.connect(wallets[1000]).mintFree({ value: 0 }))
+      .to.be.revertedWithCustomError(nft, "FreeMintExhausted");
+    // Paying still works and does not move freeMinted.
     const receipt = await (await nft.connect(wallets[1000]).mint({ value: PRICE })).wait();
     expect(parseMinted(nft, receipt).args.free).to.equal(false);
     expect(await nft.freeMinted()).to.equal(1000);
@@ -326,7 +375,7 @@ describe("HanamiBloomNFTv3 + HanamiMarket — full list / buy cycle", function (
     // Alice free-mints a v3 NFT (agent check off for the test).
     await nft.setMintActive(true);
     await nft.setAgentIdCheckRequired(false);
-    const receipt = await (await nft.connect(alice).mint({ value: 0 })).wait();
+    const receipt = await (await nft.connect(alice).mintFree({ value: 0 })).wait();
     const tokenId = parseMinted(nft, receipt).args.tokenId;
     expect(await token.balanceOf(alice.address)).to.equal(0); // free = no HANA
 

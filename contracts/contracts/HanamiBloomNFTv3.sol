@@ -14,12 +14,17 @@ pragma solidity 0.8.24;
 //   No reveal: the drawn token is final at mint.
 // - Rarity: Common Wildflower 2000 / Rare Sakura 1000 /
 //   Epic Moonflower 300 / Legendary Eternal Bloom 33.
-// - FREE MINTS: the first 1,000 mints are FREE, max ONE
-//   free mint per wallet (freeMinted / hasFreeMinted).
-//   A wallet that already used its free mint pays for
-//   every further mint even while free allocation is
-//   still left. Once the 1,000 free mints run out,
-//   every mint is paid.
+// - FREE AND PAID ARE SEPARATE (Bryan, 10 Nov 2026):
+//   two mint functions, one contract, one deck.
+//   mintFree(): FREE, max ONE free mint per wallet,
+//   1,000 free mints total (freeMinted /
+//   hasFreeMinted). A wallet may still call mint()
+//   (paid) any time, before or after its free mint —
+//   paying never consumes the free mint, and using
+//   the free mint never blocks paid mints.
+//   mint(): PAID, flat 0.0003 BNB per mint, no
+//   wallet cap. Once the 1,000 free mints run out,
+//   mintFree() reverts and only mint() is left.
 // - FLAT PAID PRICE, LOCKED in the contract (no owner
 //   function may change it): 0.0003 BNB per paid mint.
 //   Free mints cost 0 (gas only). For paid mints,
@@ -34,18 +39,16 @@ pragma solidity 0.8.24;
 //   returns empty data, and the ABI decoder reverts on
 //   empty returndata OUTSIDE try/catch.
 // - Calls from contracts are rejected (NoContracts) for
-//   mint().
-// - currentPrice() returns the price the CALLER would
-//   pay for its next mint: 0 while the caller's one
-//   free mint is unused and free allocation remains,
-//   otherwise the flat 0.0003 BNB. It is CALLER-
-//   DEPENDENT in this version — an agent MUST call it
-//   from its own minting wallet (eth_call with `from`
-//   set to that wallet) and send exactly the returned
-//   value (or more — any excess on a paid mint is
-//   refunded). An agent must NEVER hardcode a price.
-//   priceFor(wallet) exposes the same answer for any
-//   wallet without sending a transaction.
+//   mint() and mintFree().
+// - currentPrice() returns the flat paid price
+//   (0.0003 BNB) — a CONSTANT in this version, not
+//   caller-dependent, because free and paid are
+//   separate functions: mintFree() never takes a
+//   payment, mint() always takes the flat price.
+//   An agent must NEVER hardcode a price; it reads
+//   currentPrice() (or MINT_PRICE) and sends exactly
+//   that value (or more — any excess on a paid mint
+//   is refunded).
 //
 // THE DECK — hash-only design (cheap deploy):
 //   The full 3,333-entry deck is NEVER stored on-chain.
@@ -158,7 +161,8 @@ contract HanamiBloomNFTv3 is ERC721, ERC721Royalty, Ownable, ReentrancyGuard {
 
     // ---------- free mints (locked, no setter exists) ----------
     /// @notice Total free mints available, ever: 1,000.
-    /// After these run out, every mint is paid.
+    /// After these run out, mintFree() reverts and only
+    /// paid mints (mint()) remain.
     uint256 public constant FREE_MINT_CAP = 1000;
 
     /// @notice Free mints used so far (0..FREE_MINT_CAP).
@@ -253,6 +257,8 @@ contract HanamiBloomNFTv3 is ERC721, ERC721Royalty, Ownable, ReentrancyGuard {
     error NoFunds();
     error NoAgentId();
     error NoContracts();
+    error FreeMintAlreadyUsed();
+    error FreeMintExhausted();
     error PaymentForwardFailed();
     error RefundFailed();
     error NoDrawableToken();
@@ -309,27 +315,13 @@ contract HanamiBloomNFTv3 is ERC721, ERC721Royalty, Ownable, ReentrancyGuard {
         return FREE_MINT_CAP - freeMinted;
     }
 
-    /// @notice Price `wallet` would pay for its NEXT mint:
-    /// 0 while the wallet's one free mint is unused and
-    /// free allocation remains, otherwise MINT_PRICE.
-    /// Reverts SoldOut when the deck is empty.
-    /// The agent reads this (or currentPrice() from its
-    /// own wallet) and sends that value — any excess on
-    /// a paid mint is refunded.
-    function priceFor(address wallet) public view returns (uint256) {
-        if (_remaining == 0) revert SoldOut();
-        if (!hasFreeMinted[wallet] && freeMinted < FREE_MINT_CAP) return 0;
+    /// @notice The flat paid-mint price: 0.0003 BNB.
+    /// Constant in this version — free and paid are
+    /// separate functions, so the price does not
+    /// depend on the caller. mintFree() takes no
+    /// payment at all; mint() takes exactly this.
+    function currentPrice() public pure returns (uint256) {
         return MINT_PRICE;
-    }
-
-    /// @notice Price the CALLER would pay for its next mint:
-    /// 0 while the caller's one free mint is unused and
-    /// free allocation remains, otherwise 0.0003 BNB.
-    /// CALLER-DEPENDENT — an agent must call this from its
-    /// own minting wallet (eth_call with `from` set to
-    /// that wallet). Reverts SoldOut when the deck is empty.
-    function currentPrice() public view returns (uint256) {
-        return priceFor(msg.sender);
     }
 
     /// @notice Rarity of a token ID: 0 Common, 1 Rare,
@@ -419,55 +411,65 @@ contract HanamiBloomNFTv3 is ERC721, ERC721Royalty, Ownable, ReentrancyGuard {
 
     // ---------- minting ----------
 
-    /// @notice Mint ONE HANAMI BLOOM NFT (1 per call).
-    /// FREE PATH: if the caller has not used its one free
-    /// mint and free allocation remains (freeMinted < 1,000),
-    /// the mint is FREE — msg.value may be 0 and no BNB
-    /// moves (any BNB sent with a free mint is refunded
-    /// in full). A free mint earns NO $HANA bonus.
-    /// PAID PATH: otherwise the caller pays the flat
-    /// 0.0003 BNB price (msg.value must cover it).
-    /// Requires, in both paths: mint active; caller is not
-    /// a contract; caller holds an Agent ID (unless the
-    /// check is disabled); deck has a token left.
-    /// PAID PAYMENT FLOW: the exact price is forwarded
-    /// DIRECTLY to the revenue wallet in this same call —
-    /// it never sits in this contract. Any overpayment is
-    /// refunded to the minter in this same call. If either
-    /// transfer fails, the whole mint reverts, so no token
-    /// is ever minted without payment landing. Each PAID
-    /// mint also mints 12,000 $HANA to the minter.
-    /// A wallet that already used its free mint pays for
-    /// every further mint even while free allocation is
-    /// still left. Each mint (free or paid) draws the next
+    /// @notice Mint ONE HANAMI BLOOM NFT for FREE (1 per call).
+    /// Separate from the paid mint: a wallet calls this
+    /// ONLY for its one free mint. Requires: mint active;
+    /// caller is not a contract; caller holds an Agent ID
+    /// (unless the check is disabled); free allocation
+    /// remains (freeMinted < 1,000); caller has not used
+    /// its free mint yet. A free mint earns NO $HANA bonus
+    /// and moves no BNB — any BNB sent with it is
+    /// refunded in full. Using the free mint never blocks
+    /// paid mints, and paying never uses up the free mint.
+    /// Each mint (free or paid) draws the next token from
+    /// the same deck.
+    function mintFree() external payable nonReentrant {
+        if (!mintActive) revert MintInactive();
+        if (msg.sender.code.length > 0) revert NoContracts();
+        if (agentIdCheckRequired && !holdsAgentId(msg.sender)) revert NoAgentId();
+        if (_remaining == 0) revert SoldOut();
+        if (hasFreeMinted[msg.sender]) revert FreeMintAlreadyUsed();
+        if (freeMinted >= FREE_MINT_CAP) revert FreeMintExhausted();
+
+        uint256 tokenId = _drawMain();
+        freeMinted++;
+        hasFreeMinted[msg.sender] = true;
+        mintCount[msg.sender]++;
+        _mintDrawn(msg.sender, tokenId, 0, true);
+        // Free mint: no BNB moves. Refund anything sent
+        // so no funds ever stick to the contract.
+        if (msg.value > 0) {
+            (bool rok, ) = msg.sender.call{value: msg.value}("");
+            if (!rok) revert RefundFailed();
+        }
+    }
+
+    /// @notice Mint ONE HANAMI BLOOM NFT, PAID (1 per call).
+    /// Separate from the free mint: this is the paid path
+    /// only. The caller pays the flat 0.0003 BNB price
+    /// (msg.value must cover it). Requires: mint active;
+    /// caller is not a contract; caller holds an Agent ID
+    /// (unless the check is disabled); deck has a token
+    /// left. A paid mint may be called any time — before
+    /// or after the wallet's free mint, and even while
+    /// free allocation remains; it never consumes the
+    /// free mint. PAYMENT FLOW: the exact price is
+    /// forwarded DIRECTLY to the revenue wallet in this
+    /// same call — it never sits in this contract. Any
+    /// overpayment is refunded to the minter in this same
+    /// call. If either transfer fails, the whole mint
+    /// reverts, so no token is ever minted without payment
+    /// landing. Each PAID mint also mints 12,000 $HANA to
+    /// the minter. Each mint (free or paid) draws the next
     /// token from the same deck.
     function mint() external payable nonReentrant {
         if (!mintActive) revert MintInactive();
         if (msg.sender.code.length > 0) revert NoContracts();
         if (agentIdCheckRequired && !holdsAgentId(msg.sender)) revert NoAgentId();
         if (_remaining == 0) revert SoldOut();
-
-        bool isFree = !hasFreeMinted[msg.sender] && freeMinted < FREE_MINT_CAP;
-
-        uint256 tokenId;
-        if (isFree) {
-            tokenId = _drawMain();
-            freeMinted++;
-            hasFreeMinted[msg.sender] = true;
-            mintCount[msg.sender]++;
-            _mintDrawn(msg.sender, tokenId, 0, true);
-            // Free mint: no BNB moves. Refund anything sent
-            // so no funds ever stick to the contract.
-            if (msg.value > 0) {
-                (bool rok, ) = msg.sender.call{value: msg.value}("");
-                if (!rok) revert RefundFailed();
-            }
-            return;
-        }
-
         if (msg.value < MINT_PRICE) revert IncorrectPayment(MINT_PRICE, msg.value);
 
-        tokenId = _drawMain();
+        uint256 tokenId = _drawMain();
         mintCount[msg.sender]++;
         hanaToken.mint(msg.sender, MINT_BONUS);
         _mintDrawn(msg.sender, tokenId, MINT_PRICE, false);

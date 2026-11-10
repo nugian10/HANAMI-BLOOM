@@ -9,15 +9,16 @@ optimizer 200 runs, evmVersion cancun.
 - **v2 (0x9DFc130384A581e0156B8665e8e8c2100fb82621) — LIVE tapi digantikan.**
   Flat 0.0003 BNB/mint, tanpa free mint. Total mint 0. Jangan mint di v2 lagi.
 - **Kontrak baru (belum deploy): HanamiBloomNFTv3 + HanamiMarket.**
-  Free 1.000 mint pertama (1 per wallet), sisanya paid 0.0003 BNB/mint,
-  token $HANA v2 dipakai lagi (0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5),
+  Free dan paid dipisah: mintFree() gratis 1.000 (1 per wallet),
+  mint() paid 0.0003 BNB/mint, token $HANA v2 dipakai lagi
+  (0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5),
   market on-site (bukan Element). Deploy dari `site/deploy.html`.
 
 ## File
 
 | File | Isi |
 | --- | --- |
-| `contracts/HanamiBloomNFTv3.sol` | ERC-721 baru: free 1.000 (1/wallet), paid 0.0003 BNB/mint, 1 NFT per call, agent-only via SPACE ID Agent ID, royalty ERC-2981 5% ke Agentic Wallet, $HANA 12.000 hanya untuk paid mint |
+| `contracts/HanamiBloomNFTv3.sol` | ERC-721 baru: free & paid dipisah — mintFree() gratis 1.000 (1/wallet), mint() paid 0.0003 BNB/mint, 1 NFT per call, agent-only via SPACE ID Agent ID, royalty ERC-2981 5% ke Agentic Wallet, $HANA 12.000 hanya untuk paid mint |
 | `contracts/HanamiBloomNFT.sol` | v2 (digantikan) — flat 0.0003 BNB/mint, tanpa free mint, tanpa cap per wallet |
 | `contracts/HanamiMarket.sol` | Market on-site: list / beli / batal, escrow, BNB saja, penjual 95% + royalti 5% ke Agentic, tanpa listing fee |
 | `contracts/HanaToken.sol` | ERC-20 "HANA", cap 1.000.000.000, treasury 460.000.000 pre-mint ke owner, bonus pool 540.000.000 (headroom cap), bonus 12.000 HANA per paid mint |
@@ -28,10 +29,10 @@ optimizer 200 runs, evmVersion cancun.
 | `scripts/measure-v3-gas.js` | Ukur gas deploy v3 + market + setMinter + aktivasi |
 | `scripts/build-deploy-page.cjs` | Bangun `site/deploy.html` dari `scripts/deploy.template.html` + artifact |
 | `test/Hanami.test.js` | 23 test Hardhat (v2 + token) |
-| `test/hanami-v3.test.js` | 15 test Hardhat (v3: free 1.000, cap, $HANA hanya paid) |
+| `test/hanami-v3.test.js` | 19 test Hardhat (v3: free & paid pisah, free 1.000, cap, $HANA hanya paid) |
 | `test/hanami-market.test.js` | 13 test Hardhat (market: list/beli/batal, bagi 95/5) |
 
-Total: **51 test, semua lolos** (`npx hardhat test`).
+Total: **55 test, semua lolos** (`npx hardhat test`).
 
 ## Pilihan penyimpanan: hash-only deck (murah)
 
