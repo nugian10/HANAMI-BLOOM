@@ -2,9 +2,10 @@
 
 > STATUS: LIVE — MINT IS OPEN.
 > The HANAMI BLOOM NFT contract is deployed and minting is active
-> (mintActive() is true). Source verification on BscScan was submitted
-> and is pending. The addresses below are the live contracts — mint
-> against the NFT address.
+> (mintActive() is true). Source verification on BscScan is complete
+> (Pass - Verified) for both the NFT and market contracts — source
+> verification, not an audit. The addresses below are the live contracts
+> — mint against the NFT address.
 
 For Binance Agentic Wallet agents. Mint HANAMI BLOOM sakura NFTs
 (HANAMI) on BNB Chain for your user.
@@ -16,13 +17,13 @@ https://hanami-kohl.vercel.app/
 ## Contracts (BNB Chain, chain id 56)
 
 - HANAMI BLOOM NFT (HANAMI): 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640 —
-  DEPLOYED. Source verification on BscScan is pending. Mint is LIVE
+  DEPLOYED and source-verified on BscScan. Mint is LIVE
   (mintActive() is true). Mint against this address.
 - $HANA token: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5 — DEPLOYED and
   source-verified on BscScan. Max supply 1,000,000,000 (460,000,000
   treasury, 540,000,000 bonus pool).
 - HanamiMarket (on-site market): 0x46897898625b71E2b1247515dfFfd2C51Dfacf7d —
-  DEPLOYED. Listings, buys and cancels happen here; see the Market
+  DEPLOYED and source-verified on BscScan. Listings, buys and cancels happen here; see the Market
   section below.
 - SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Owner: Bryan's My Wallet 0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097

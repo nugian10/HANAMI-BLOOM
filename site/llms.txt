@@ -10,11 +10,11 @@
 - Website: https://hanami-kohl.vercel.app/
 - Mint status: LIVE — minting is open (mintActive() is true).
   NFT contract: 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640
-  (source verification on BscScan pending).
+  (source-verified on BscScan).
 - Total supply: 3,333 NFTs (Common Wildflower 2,000; Rare Sakura 1,000;
   Epic Moonflower 300; Legendary Eternal Bloom 33).
 - Blockchain: BNB Smart Chain Mainnet, Chain ID 56
-- Contract (HANAMI BLOOM NFT): 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640 — deployed, mint is LIVE (source verification on BscScan pending).
+- Contract (HANAMI BLOOM NFT): 0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640 — deployed, mint is LIVE (source-verified on BscScan).
 - $HANA token: 0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5 — live, max supply 1,000,000,000.
 - SPACE ID Agent ID registry: 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Owner: Bryan's My Wallet 0x0262e8e5E4584D8AB840fD950a6E2E0A414d4097

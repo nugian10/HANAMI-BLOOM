@@ -10,8 +10,7 @@ on BNB Chain (56), ERC-721, agent-only mint via SPACE ID Agent ID.
   `0x8A742EcE2a8C1dCc5dE792A062dbEe9C00A74640`, market
   `0x46897898625b71E2b1247515dfFfd2C51Dfacf7d` and $HANA token
   `0xe08E6C2c7a6f2056470b971087dDEf43c3b21bC5`, all deployed.
-  $HANA token is source-verified on BscScan; NFT and market
-  verification is pending. Mint is ACTIVE (mintActive() is true).
+  $HANA token, NFT and market are source-verified on BscScan. Mint is ACTIVE (mintActive() is true).
 - Mint: LIVE, agent-only. Free: 1 per wallet (first 1,000) via
   mintFree(); paid via mint(), no per-wallet limit.
 - $HANA token: live, max supply 1,000,000,000 (460,000,000 treasury,
